@@ -1,11 +1,13 @@
-// src/components/MainScreen.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Grid, IconButton, Typography, Button } from '@mui/material';
 import { Notifications as NotificationsIcon, Archive as InventoryIcon, HelpOutline as HelpIcon } from '@mui/icons-material';
 import NotificationBell from './Notificationbell';
+import Inventory from './Inventory';
 import './MainScreen.css';
 
 const MainScreen: React.FC = () => {
+  const [showInventory, setShowInventory] = useState(false);
+
   return (
     <Box className="main-screen">
       <Grid container spacing={2} justifyContent="flex-end" alignItems="center" className="top-right-icons">
@@ -13,7 +15,7 @@ const MainScreen: React.FC = () => {
           <NotificationBell />
         </Grid>
         <Grid item>
-          <IconButton color="primary">
+          <IconButton color="primary" onClick={() => setShowInventory(!showInventory)}>
             <InventoryIcon />
           </IconButton>
         </Grid>
@@ -23,9 +25,10 @@ const MainScreen: React.FC = () => {
           </IconButton>
         </Grid>
       </Grid>
+      {showInventory && <Inventory />}
       <Box className="content">
-        <Typography variant="h1">Ngoc</Typography>
-        <Typography variant="body1">10 attempts</Typography>
+        <Typography variant="h1" className="title">Ngoc</Typography>
+        <Typography variant="body1" className="subtitle">10 attempts</Typography>
         <Box className="game-section">
           <Box className="ball">Ball</Box>
           <Button variant="contained" color="primary">Play</Button>

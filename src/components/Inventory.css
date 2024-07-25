@@ -1,0 +1,27 @@
+.inventory-container {
+    position: fixed;
+    top: 100px;
+    right: 10px;
+    width: 90%;
+    max-width: 320px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+  
+  .inventory-container .MuiButton-root {
+    margin-top: 10px;
+  }
+  
+  @media (max-width: 600px) {
+    .inventory-container {
+      width: 95%;
+      max-width: none;
+      left: 2.5%;
+      right: 2.5%;
+    }
+  }
+  
