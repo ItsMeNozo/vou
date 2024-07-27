@@ -67,7 +67,9 @@ const VoucherList: React.FC = () => {
 				<div className='text-left p-4'>
 					<span className='text-left text-3xl font-bold'>Vouchers</span>
 				</div>
-				<div className='bg-white flex border-b'>
+				{/* ---------------------------------------------------------------------- */}
+				{/* Sort list */}
+				<div className='bg-white flex border-b sticky top-0 z-50'>
 					<button
 						className={`flex justify-center items-center gap-1 flex-1 p-2 ${selectedOrder === 'Newest' ? 'text-[#7d4af9]' : ''}`}
 						onClick={() => handleSelectGame('Newest')}
@@ -87,6 +89,8 @@ const VoucherList: React.FC = () => {
 						Expiring {renderIcon('Expiring')}
 					</button>
 				</div>
+				{/* ---------------------------------------------------------------------- */}
+				{/* Voucher list */}
 				<div className='bg-slate-50'>
 					{vouchers.map((voucher, index) => (
 						<div key={index} className='bg-white m-2 flex pr-2 border border-slate-300 relative rounded-sm'>
