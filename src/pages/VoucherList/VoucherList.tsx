@@ -1,74 +1,124 @@
-import { useState, useEffect } from 'react';
-import React from 'react';
-import logo from '../../assets/logo.png';
-import defaultAvatar from '../../assets/avatar.png';
+import React, { useState } from 'react';
+import { GoArrowUp, GoArrowDown } from 'react-icons/go';
+import './VoucherList.css';
 
-const username = 'John Doe';
-const avatar = '';
-
-const eventItems = [
+const vouchers = [
+	// description, condition, voucherCode, qrCode, expiryDate, status
 	{
-		// name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-		name: 'Summer Fun Quiz Challenge',
-		description: 'Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.',
-		brand_name: 'Cool Drinks Inc.',
-		startTime: '2024-07-01T10:00:00Z',
-		endTime: '2024-07-31T22:00:00Z',
-		game_type: 'Quiz',
-		status: 'Upcoming',
-		imageURL: 'https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg',
+		description: 'Get $10 off your next purchase at Cool Drinks Inc.',
+		brand: 'Cool Drinks Inc.',
+		expired: '2024-12-31T23:59:59Z',
+		imageURL: 'https://i.pinimg.com/originals/d9/95/a3/d995a3d4637c2d04b2b5acfc43640a2d.png',
+		redeemMethod: ['Online', 'Offline'],
 	},
 	{
-		// name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-		name: 'Summer Fun Quiz Challenge',
-		description: 'Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.',
-		brand_name: 'Cool Drinks Inc.',
-		startTime: '2024-07-01T10:00:00Z',
-		endTime: '2024-07-31T22:00:00Z',
-		game_type: 'Quiz',
-		status: 'Upcoming',
-		imageURL: 'https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg',
+		description: 'Get $10 off your next purchase at Cool Drinks Inc.',
+		brand: 'Cool Drinks Inc.',
+		expired: '2024-12-31T23:59:59Z',
+		imageURL: 'https://i.pinimg.com/originals/d9/95/a3/d995a3d4637c2d04b2b5acfc43640a2d.png',
+		redeemMethod: ['Online', 'Offline'],
 	},
 	{
-		// name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-		name: 'Summer Fun Quiz Challenge',
-		description: 'Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.',
-		brand_name: 'Cool Drinks Inc.',
-		startTime: '2024-07-01T10:00:00Z',
-		endTime: '2024-07-31T22:00:00Z',
-		game_type: 'Quiz',
-		status: 'Upcoming',
-		imageURL: 'https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg',
+		description: 'Get $10 off your next purchase at Cool Drinks Inc.',
+		brand: 'Cool Drinks Inc.',
+		expired: '2024-12-31T23:59:59Z',
+		imageURL: 'https://i.pinimg.com/originals/d9/95/a3/d995a3d4637c2d04b2b5acfc43640a2d.png',
+		redeemMethod: ['Online', 'Offline'],
 	},
 	{
-		// name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-		name: 'Summer Fun Quiz Challenge',
-		description: 'Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.',
-		brand_name: 'Cool Drinks Inc.',
-		startTime: '2024-07-01T10:00:00Z',
-		endTime: '2024-07-31T22:00:00Z',
-		game_type: 'Quiz',
-		status: 'Upcoming',
-		imageURL: 'https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg',
+		description: 'Get $10 off your next purchase at Cool Drinks Inc.',
+		brand: 'Cool Drinks Inc.',
+		expired: '2024-12-31T23:59:59Z',
+		imageURL: 'https://i.pinimg.com/originals/d9/95/a3/d995a3d4637c2d04b2b5acfc43640a2d.png',
+		redeemMethod: ['Online', 'Offline'],
 	},
 	{
-		// name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-		name: 'Summer Fun Quiz Challenge',
-		description: 'Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.',
-		brand_name: 'Cool Drinks Inc.',
-		startTime: '2024-07-01T10:00:00Z',
-		endTime: '2024-07-31T22:00:00Z',
-		game_type: 'Quiz',
-		status: 'Upcoming',
-		imageURL: 'https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg',
+		description: 'Get $10 off your next purchase at Cool Drinks Inc.',
+		brand: 'Cool Drinks Inc.',
+		expired: '2024-12-31T23:59:59Z',
+		imageURL: 'https://i.pinimg.com/originals/d9/95/a3/d995a3d4637c2d04b2b5acfc43640a2d.png',
+		redeemMethod: ['Online', 'Offline'],
 	},
 ];
 
 const VoucherList: React.FC = () => {
+	const [selectedOrder, setSelectedOrder] = useState('Newest');
+	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+	const handleSelectGame = (buttonName: string) => {
+		if (selectedOrder === buttonName) {
+			setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+		} else {
+			setSelectedOrder(buttonName);
+			setSortOrder('asc');
+		}
+	};
+
+	const renderIcon = (buttonName: string) => {
+		if (selectedOrder === buttonName) {
+			return sortOrder === 'asc' ? <GoArrowUp className='text-lg' /> : <GoArrowDown className='text-lg' />;
+		}
+		return null;
+	};
 
 	return (
 		<>
-			
+			<div className='mb-16'>
+				<div className='text-left p-4'>
+					<span className='text-left text-3xl font-bold'>Vouchers</span>
+				</div>
+				<div className='bg-white flex border-b'>
+					<button
+						className={`flex justify-center items-center gap-1 flex-1 p-2 ${selectedOrder === 'Newest' ? 'text-[#7d4af9]' : ''}`}
+						onClick={() => handleSelectGame('Newest')}
+					>
+						Newest {renderIcon('Newest')}
+					</button>
+					<button
+						className={`flex justify-center items-center gap-1 flex-1 p-2 ${selectedOrder === 'Name' ? 'text-[#7d4af9]' : ''}`}
+						onClick={() => handleSelectGame('Name')}
+					>
+						Name {renderIcon('Name')}
+					</button>
+					<button
+						className={`flex justify-center items-center gap-1 flex-1 p-2 ${selectedOrder === 'Expiring' ? 'text-[#7d4af9]' : ''}`}
+						onClick={() => handleSelectGame('Expiring')}
+					>
+						Expiring {renderIcon('Expiring')}
+					</button>
+				</div>
+				<div className='bg-slate-50'>
+					{vouchers.map((voucher, index) => (
+						<div key={index} className='bg-white m-2 flex pr-2 border border-slate-300 relative rounded-sm'>
+							<div className='w-1/3 flex items-center border-r-2 border-slate-200 border-dashed relative'>
+								<img src={voucher.imageURL} className='max-h-40 h-full w-full object-cover' />
+							</div>
+							<div className='py-2 w-2/3 pl-2 text-left'>
+								<div>
+									<div className='mb-1 font-medium line-clamp-2'>{voucher.description}</div>
+									<div className='mb-2 line-clamp-1 text-sm'>{voucher.brand}</div>
+								</div>
+								<div className='mb-2 flex gap-1'>
+									{voucher.redeemMethod.map((method, index) =>
+										method === 'Online' ? (
+											<div key={index} className='text-sm bg-blue-400 text-white p-1 rounded-md mr-1'>
+												{method}
+											</div>
+										) : (
+											<div key={index} className='text-sm bg-yellow-400 p-1 rounded-md mr-1'>
+												{method}
+											</div>
+										)
+									)}
+								</div>
+								<div className='text-[#7d4af9] text-sm'>
+									Expired: {new Date(voucher.expired).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
 		</>
 	);
 };

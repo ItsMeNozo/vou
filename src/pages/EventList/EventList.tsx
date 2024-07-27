@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import React from 'react';
 import logo from '../../assets/logo.png';
 import defaultAvatar from '../../assets/avatar.png';
+import { Input } from '@/components/ui/input';
 import './EventList.css';
 
 const username = 'John Doe';
@@ -66,7 +67,6 @@ const eventItems = [
 ];
 
 const EventList: React.FC = () => {
-	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedGame, setSelectedGame] = useState('All');
 	const [selectedTimeFrames, setSelectedTimeFrames] = useState<{ [key: string]: string }>({
 		All: 'Happening',
@@ -74,10 +74,6 @@ const EventList: React.FC = () => {
 		'Quiz game': '',
 	});
 	const [quizGameTimes, setQuizGameTimes] = useState<{ time: string; label: string }[]>([]);
-
-	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchQuery(event.target.value);
-	};
 
 	const handleSelectGame = (buttonName: string) => {
 		setSelectedGame(buttonName);
@@ -201,14 +197,8 @@ const EventList: React.FC = () => {
 				</div>
 				{/* ---------------------------------------------------------------------- */}
 				{/* Searchbar */}
-				<div>
-					<input
-						className='w-3/5 my-4 p-2 border border-gray-500 rounded-lg outline-none min-w-64'
-						type='text'
-						placeholder='Search...'
-						value={searchQuery}
-						onChange={handleSearchChange}
-					/>
+				<div className='m-4' >
+					<Input placeholder='Search'className=''/>
 				</div>
 				{/* ---------------------------------------------------------------------- */}
 				{/* Event list */}
