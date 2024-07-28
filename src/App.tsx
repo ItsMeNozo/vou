@@ -1,9 +1,9 @@
-import { RouterProvider, Outlet, createBrowserRouter } from 'react-router-dom';
-import EventList from './pages/EventList/EventList.tsx';
-import VoucherList from './pages/VoucherList/VoucherList.tsx';
-import Navbar from './components/Navbar.tsx';
-import './App.css';
-import MainScreen from './pages/Game/MainScreen.tsx';
+import { RouterProvider, Outlet, createBrowserRouter } from "react-router-dom";
+import EventList from "./pages/EventList/EventList.tsx";
+import VoucherList from "./pages/VoucherList/VoucherList.tsx";
+import Navbar from "./components/Navbar.tsx";
+import "./App.css";
+import MainScreen from "./pages/ShakingGame/MainScreen.tsx";
 
 const Layout = () => {
   return (
@@ -16,34 +16,34 @@ const Layout = () => {
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Layout />,
     children: [
       {
-        path: '/',
+        path: "/",
         element: <EventList />,
       },
       {
-        path: '/discover',
+        path: "/discover",
         element: <EventList />,
       },
       {
-        path: '/voucher',
+        path: "/voucher",
         element: <VoucherList />,
       },
     ],
   },
   {
-    path: 'game',
+    path: "shaking-game",
     children: [
       {
-        path: 'main',
+        path: "main",
         element: <MainScreen />,
       },
     ],
   },
   {
-    path: '*',
+    path: "*",
     element: <div>Page not found</div>,
   },
 ]);
