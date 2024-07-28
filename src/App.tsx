@@ -4,6 +4,7 @@ import VoucherList from "./pages/VoucherList/VoucherList.tsx";
 import Navbar from "./components/Navbar.tsx";
 import "./App.css";
 import MainScreen from "./pages/ShakingGame/MainScreen.tsx";
+import EventDetails from "./pages/EventDetails/EventDetails.tsx";
 
 const Layout = () => {
   return (
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "/voucher",
         element: <VoucherList />,
+      },
+      {
+        path: "/event/:id",
+        element: <EventDetails />,
       },
     ],
   },

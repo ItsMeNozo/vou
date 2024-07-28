@@ -18,20 +18,48 @@ const Navbar: React.FC = () => {
 
   return (
     <div className="shadow-[0_-1px_4px_0_rgba(0,0,0,0.1)] h-16 bg-white flex fixed -bottom-1 left-0 w-full">
-      <button className={`grid gap-1 justify-items-center items-center flex-1 p-2 ${selectedList === "Discover" ? " text-[#7d4af9]" : ""}`} onClick={() => handleSelectList("Discover")}>
-        {selectedList === "Discover" ? <RiSearchFill className="text-xl stroke-1" /> : <RiSearchLine className="text-xl" />}
+      <button
+        className={`grid gap-1 justify-items-center items-center flex-1 p-2 ${selectedList === "Discover" ? " text-[#7d4af9]" : ""}`}
+        onClick={() => handleSelectList("Discover")}
+      >
+        {selectedList === "Discover" ? (
+          <RiSearchFill className="text-xl stroke-1" />
+        ) : (
+          <RiSearchLine className="text-xl" />
+        )}
         <span className="text-sm">Discover</span>
       </button>
-      <button className={`grid gap-1 justify-items-center flex-1 p-2 ${selectedList === "Favorite" ? "text-[#7d4af9]" : ""}`} onClick={() => handleSelectList("Favorite")}>
-        {selectedList === "Favorite" ? <FaHeart className="text-xl" /> : <FaRegHeart className="text-xl" />}
+      <button
+        className={`grid gap-1 justify-items-center flex-1 p-2 ${selectedList === "Favorite" ? "text-[#7d4af9]" : ""}`}
+        onClick={() => handleSelectList("Favorite")}
+      >
+        {selectedList === "Favorite" ? (
+          <FaHeart className="text-xl" />
+        ) : (
+          <FaRegHeart className="text-xl" />
+        )}
         <span className="text-sm">Favorite</span>
       </button>
-      <button className={`grid gap-1 justify-items-center flex-1 p-2 ${selectedList === "Voucher" ? "text-[#7d4af9]" : ""}`} onClick={() => handleSelectList("Voucher")}>
-        {selectedList === "Voucher" ? <RiCoupon3Fill className="text-xl" /> : <RiCoupon3Line className="text-xl" />}
+      <button
+        className={`grid gap-1 justify-items-center flex-1 p-2 ${selectedList === "Voucher" ? "text-[#7d4af9]" : ""}`}
+        onClick={() => handleSelectList("Voucher")}
+      >
+        {selectedList === "Voucher" ? (
+          <RiCoupon3Fill className="text-xl" />
+        ) : (
+          <RiCoupon3Line className="text-xl" />
+        )}
         <span className="text-sm">Voucher</span>
       </button>
-      <button className={`grid gap-1 justify-items-center flex-1 p-2 ${selectedList === "Notification" ? "text-[#7d4af9]" : ""}`} onClick={() => handleSelectList("Notification")}>
-        {selectedList === "Notification" ? <IoNotifications className="text-xl" /> : <IoNotificationsOutline className="text-xl" />}
+      <button
+        className={`grid gap-1 justify-items-center flex-1 p-2 ${selectedList === "Notification" ? "text-[#7d4af9]" : ""}`}
+        onClick={() => handleSelectList("Notification")}
+      >
+        {selectedList === "Notification" ? (
+          <IoNotifications className="text-xl" />
+        ) : (
+          <IoNotificationsOutline className="text-xl" />
+        )}
         <span className="text-sm">Notification</span>
       </button>
     </div>

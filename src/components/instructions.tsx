@@ -1,14 +1,17 @@
 const HelpInstructions = () => {
   return (
     <div className="z-50 bg-purple-200 bg-opacity-50 border border-purple-500 p-2 rounded-md text-white text-sm leading-5">
-      <h2 className="text-red-700 text-lg leading-7">Frontend Shaking Game Instructions</h2>
+      <h2 className="text-red-700 text-lg leading-7">
+        Frontend Shaking Game Instructions
+      </h2>
 
       <p className="text-purple-900">
         <strong>Home Screen:</strong>
       </p>
       <ul className="ml-6 text-purple-900">
         <li>
-          <strong>Play:</strong> Shake your phone for 5 seconds to receive a random item.
+          <strong>Play:</strong> Shake your phone for 5 seconds to receive a
+          random item.
         </li>
       </ul>
       <p className="text-purple-900">
@@ -23,7 +26,8 @@ const HelpInstructions = () => {
       <ul className="ml-6 text-purple-900">
         <li>View and manage your collected items.</li>
         <li>
-          Use the <strong>Mix Option</strong> to receive a voucher and exit the game for this event.
+          Use the <strong>Mix Option</strong> to receive a voucher and exit the
+          game for this event.
         </li>
       </ul>
       <p className="text-purple-900">
