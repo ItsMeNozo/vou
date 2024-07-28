@@ -30,9 +30,6 @@ const MainScreen: React.FC = () => {
           <Link to={"#notification"} className={classes.navlink}>
             <span className={`material-symbols-outlined`}>notifications</span>
           </Link>
-          {/* <Link to={"#friend"} className={`${classes.navlink}`}>
-            <span className="material-symbols-outlined">group</span>
-          </Link> */}
           <AddFriendPanel />
           <Link to={"#inventory"} className={classes.navlink}>
             <img src={inventoryImg} alt="inventory" width="24" />

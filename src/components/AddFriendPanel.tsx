@@ -15,7 +15,7 @@ export function AddFriendPanel() {
 
   return (
     <div className="relative">
-      <button className="p-2 text-purple-500 hover:bg-gray-200 rounded-full focus:outline-none" onClick={() => setIsVisible(!isVisible)}>
+      <button className="p-2  hover:text-purple-700 transition-colors duration-300 rounded-full" onClick={() => setIsVisible(!isVisible)}>
         <FontAwesomeIcon icon={faUserPlus} />
       </button>
       {isVisible && (

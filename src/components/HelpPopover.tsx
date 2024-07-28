@@ -7,7 +7,7 @@ export function QuestionPopover() {
   return (
     <Popover>
       <PopoverTrigger>
-        <FontAwesomeIcon icon={faCircleQuestion} />
+        <FontAwesomeIcon icon={faCircleQuestion} className=" hover:text-purple-700 transition-colors duration-300 text-xl" />
       </PopoverTrigger>
       <PopoverContent className="mt-5">
         <HelpInstructions />

@@ -82,7 +82,6 @@
   text-purple-600;
 }
 
-/* TODO: add this instruction below shaking ball */
 .shake_image {
   @apply block
   mx-auto
