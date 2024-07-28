@@ -34,7 +34,7 @@ const Box: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-4">
+    <div className="flex flex-col items-center justify-center space-y-4">
       <Button onClick={requestPermission} className="bg-purple-500 text-white">
         Enable Shake Detection
       </Button>

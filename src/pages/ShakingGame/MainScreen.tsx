@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import classes from "./MainScreen.module.css";
@@ -7,8 +7,18 @@ import inventoryImg from "@/assets/game/inventory.png";
 import item1 from "@/assets/game/items/item1.png";
 import item2 from "@/assets/game/items/item2.png";
 import item3 from "@/assets/game/items/item3.png";
+import shake from "@/assets/game/wshake.png";
+import Box from "@/components/ShakingBox";
+import { QuestionPopover } from "@/components/HelpPopover";
+import { AddFriendPanel } from "@/components/AddFriendPanel";
 
 const MainScreen: React.FC = () => {
+  const [showGame, setShowGame] = useState(false);
+
+  const handleStartGame = () => {
+    setShowGame(true);
+  };
+
   return (
     <div>
       <nav className={classes.navbar}>
@@ -20,15 +30,14 @@ const MainScreen: React.FC = () => {
           <Link to={"#notification"} className={classes.navlink}>
             <span className={`material-symbols-outlined`}>notifications</span>
           </Link>
-          <Link to={"#friend"} className={`${classes.navlink}`}>
+          {/* <Link to={"#friend"} className={`${classes.navlink}`}>
             <span className="material-symbols-outlined">group</span>
-          </Link>
+          </Link> */}
+          <AddFriendPanel />
           <Link to={"#inventory"} className={classes.navlink}>
             <img src={inventoryImg} alt="inventory" width="24" />
           </Link>
-          <Link to={"#help"} className={`${classes.navlink}`}>
-            <span className={`material-symbols-outlined ${classes.help}`}>help</span>
-          </Link>
+          <QuestionPopover />
         </div>
       </nav>
       <div
@@ -39,25 +48,26 @@ const MainScreen: React.FC = () => {
       >
         <div className={classes.game_menu}>
           <h1 className={classes.game_title}>Shake the pet</h1>
-          <div className={classes.game_banner}>
-            <img src={item1} alt="Game Icon" width={100} />
-            <img src={item2} alt="Game Icon" width={100} />
-            <img src={item3} alt="Game Icon" width={100} />
-          </div>
-          <button className={classes.start_btn}>SHAKE IT</button>
-          {/* TODO: add this instruction below shaking ball
-          <div className={classes.instruction}>
-            <img
-              src={shake}
-              alt="Game Icon"
-              width={120}
-              className={classes.shake_image}
-            />
-            <p>
-              Shake the pet to collect items. Collect enough items to win
-              rewards.
-            </p>
-          </div> */}
+          {showGame ? (
+            <div className="mt-5">
+              <Box />
+              <div className={classes.instruction}>
+                <img src={shake} alt="Game Icon" width={120} className={classes.shake_image} />
+                <p>Shake the pet to collect items. Collect enough items to win rewards.</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className={classes.game_banner}>
+                <img src={item1} alt="Game Icon" width={100} />
+                <img src={item2} alt="Game Icon" width={100} />
+                <img src={item3} alt="Game Icon" width={100} />
+              </div>
+              <button onClick={handleStartGame} className={classes.start_btn}>
+                SHAKE IT
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

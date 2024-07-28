@@ -1,6 +1,7 @@
 .navbar {
   @apply flex
   items-center
+
   px-4
   py-2
   border-b;
@@ -81,7 +82,7 @@
   text-purple-600;
 }
 
-/* TODO: add this instruction below shaking ball
+/* TODO: add this instruction below shaking ball */
 .shake_image {
   @apply block
   mx-auto
@@ -91,4 +92,4 @@
 .instruction p {
   @apply text-white
   font-medium;
-} */
+}

@@ -3,7 +3,7 @@ import EventList from "./pages/EventList/EventList.tsx";
 import VoucherList from "./pages/VoucherList/VoucherList.tsx";
 import Navbar from "./components/Navbar.tsx";
 import "./App.css";
-import MainScreen from "./pages/Game/MainScreen.tsx";
+import MainScreen from "./pages/ShakingGame/MainScreen.tsx";
 
 const Layout = () => {
   return (
