@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
 import classes from "./MainScreen.module.css";
-
 import inventoryImg from "@/assets/game/inventory.png";
 import item1 from "@/assets/game/items/item1.png";
 import item2 from "@/assets/game/items/item2.png";
@@ -11,6 +9,8 @@ import shake from "@/assets/game/wshake.png";
 import Box from "@/components/ShakingBox";
 import { QuestionPopover } from "@/components/HelpPopover";
 import { AddFriendPanel } from "@/components/AddFriendPanel";
+import NotificationPopup from "@/components/NotifcationPopover";
+import InventoryPopup from "@/components/InventoryPopup"; // Import the InventoryPopup component
 
 const MainScreen: React.FC = () => {
   const [showGame, setShowGame] = useState(false);
@@ -27,16 +27,13 @@ const MainScreen: React.FC = () => {
           <small className={classes.remaining}>3 plays remaining</small>
         </Link>
         <div className={classes.navbar_controls}>
-          <Link to={"#notification"} className={classes.navlink}>
-            <span className={`material-symbols-outlined`}>notifications</span>
-          </Link>
+          <NotificationPopup />
           <AddFriendPanel />
-          <Link to={"#inventory"} className={classes.navlink}>
-            <img src={inventoryImg} alt="inventory" width="24" />
-          </Link>
+          <InventoryPopup />
           <QuestionPopover />
         </div>
       </nav>
+      {showGame && <Box />}
       <div
         className={classes.main_screen}
         style={{
