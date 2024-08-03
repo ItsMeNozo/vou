@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import classes from "./MainScreen.module.css";
-import inventoryImg from "@/assets/game/inventory.png";
+
 import item1 from "@/assets/game/items/item1.png";
 import item2 from "@/assets/game/items/item2.png";
 import item3 from "@/assets/game/items/item3.png";
