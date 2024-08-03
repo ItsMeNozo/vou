@@ -1,0 +1,88 @@
+.popup_inner {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: left;
+  width: 300px;
+  border: 1px solid #ccc;
+}
+
+.popup_inner h2 {
+  margin-bottom: 10px;
+  color: #6530b9;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.popup_inner ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.popup_inner li {
+  margin: 15px 0;
+  font-family: Arial, sans-serif;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.accept, .decline {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+.accept {
+  background-color: #28a745;
+  color: white;
+}
+
+.accept:hover {
+  background-color: #218838;
+}
+
+.decline {
+  background-color: #dc3545;
+  color: white;
+}
+
+.decline:hover {
+  background-color: #c82333;
+}
+
+.notification {
+  margin-top: 20px;
+  font-family: Arial, sans-serif;
+  color: #6530b9;
+  text-align: center;
+}
+
+.close_btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #6530b9;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.close_btn:hover {
+  background: #5a27a8;
+}
