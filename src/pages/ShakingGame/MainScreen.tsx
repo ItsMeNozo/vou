@@ -40,7 +40,8 @@ const MainScreen: React.FC = () => {
       <div
         className={classes.main_screen}
         style={{
-          background: "linear-gradient(352.71deg, #6530b9 -0.26%, #FFFFFF 73.24%)",
+          background:
+            "linear-gradient(352.71deg, #6530b9 -0.26%, #FFFFFF 73.24%)",
         }}
       >
         <div className={classes.game_menu}>
@@ -49,8 +50,16 @@ const MainScreen: React.FC = () => {
             <div className="mt-5">
               <Box />
               <div className={classes.instruction}>
-                <img src={shake} alt="Game Icon" width={120} className={classes.shake_image} />
-                <p>Shake the pet to collect items. Collect enough items to win rewards.</p>
+                <img
+                  src={shake}
+                  alt="Game Icon"
+                  width={120}
+                  className={classes.shake_image}
+                />
+                <p>
+                  Shake the pet to collect items. Collect enough items to win
+                  rewards.
+                </p>
               </div>
             </div>
           ) : (

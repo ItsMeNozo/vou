@@ -39,7 +39,11 @@ const Box: React.FC = () => {
         Enable Shake Detection
       </Button>
       <div className={`w-32 h-32 ${isShaking ? "animate-shake" : ""}`}>
-        <img src="/images/treasure.png" alt="Shake this treasure chest" className={`w-32 h-32 ${isShaking ? "animate-shake" : ""}`} />
+        <img
+          src="/images/treasure.png"
+          alt="Shake this treasure chest"
+          className={`w-32 h-32 ${isShaking ? "animate-shake" : ""}`}
+        />
       </div>
     </div>
   );
