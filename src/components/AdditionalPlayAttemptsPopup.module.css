@@ -1,0 +1,73 @@
+.popup_inner {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left;
+    width: 300px;
+    border: 1px solid #ccc;
+  }
+  
+  .popup_inner h2 {
+    margin-bottom: 10px;
+    color: #6530b9;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  .popup_inner p {
+    font-family: Arial, sans-serif;
+    color: #333;
+    text-align: center;
+  }
+  
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .share_button {
+    background-color: #4267B2;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+  
+  .friends_list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .friend_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .friend_item button {
+    background-color: #28a745;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+  
+  .trigger_button {
+    background-color: #6530b9;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+  

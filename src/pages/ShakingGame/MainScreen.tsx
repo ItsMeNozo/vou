@@ -8,22 +8,27 @@ import shake from "@/assets/game/wshake.png";
 import Box from "@/components/ShakingBox";
 import { QuestionPopover } from "@/components/HelpPopover";
 import { AddFriendPanel } from "@/components/AddFriendPanel";
-import NotificationPopup from "@/components/NotifcationPopover"; //
-import InventoryPopup from "@/components/InventoryPopup"; // Import the InventoryPopup component
+import NotificationPopup from "@/components/NotifcationPopover";//
+import InventoryPopup from "@/components/InventoryPopup";
+import AdditionalPlayAttemptsPopup from "@/components/AdditionalPlayAttemptsPopup"; // Import the AdditionalPlayAttemptsPopup component
 
 const MainScreen: React.FC = () => {
   const [showGame, setShowGame] = useState(false);
+  const [attempts, setAttempts] = useState(3); // Example attempts state
 
   const handleStartGame = () => {
-    setShowGame(true);
+    if (attempts > 0) {
+      setShowGame(true);
+      setAttempts(attempts - 1);
+    }
   };
 
   return (
     <div>
       <nav className={classes.navbar}>
         <Link to={"#info"} className={`${classes.navlink} ${classes.profile}`}>
-          <span className={classes.username}>Ngoc Pham 2</span>
-          <small className={classes.remaining}>3 plays remaining</small>
+          <span className={classes.username}>Ngoc Pham</span>
+          <small className={classes.remaining}>{attempts} plays remaining</small>
         </Link>
         <div className={classes.navbar_controls}>
           <NotificationPopup />
@@ -32,7 +37,7 @@ const MainScreen: React.FC = () => {
           <QuestionPopover />
         </div>
       </nav>
-      {showGame && <Box />}
+      {!showGame && attempts === 0 && <AdditionalPlayAttemptsPopup />}
       <div
         className={classes.main_screen}
         style={{
