@@ -28,10 +28,10 @@ const QuizGameLobby: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 text-center animate-bgcolor">
-      <h1 id="title1" className="text-white font-raleway">
+      <h1 id="title1" className="text-white ">
         Waiting on host to start game
       </h1>
-      <h3 id="title2" className="text-white font-raleway text-sm">
+      <h3 id="title2" className="text-white  text-sm">
         Do you see your name on the screen?
       </h3>
       <div className="loader mx-auto my-4"></div>

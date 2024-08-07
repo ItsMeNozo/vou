@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import React from "react";
-import logo from "../../assets/logo.png";
-import defaultAvatar from "../../assets/avatar.png";
+import logo from "@/assets/logo.png";
+import defaultAvatar from "@/assets/avatar.png";
 import { Input } from "@/components/ui/input";
 import "./EventList.css";
 

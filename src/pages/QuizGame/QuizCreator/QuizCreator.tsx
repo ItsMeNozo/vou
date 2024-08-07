@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSocket } from "@/contexts/SocketContext"; // Assuming you have a SocketContext set up
+import { useSocket } from "@/contexts/SocketContext"; 
 
 const QuizGameQuizCreator: React.FC = () => {
   const socket = useSocket();
@@ -75,11 +75,11 @@ const QuizGameQuizCreator: React.FC = () => {
 
   return (
     <div className="p-8">
-      <h1 id="title" className="text-center font-raleway text-3xl mb-8">
+      <h1 id="title" className="text-center  text-3xl mb-8">
         Kahoot Quiz Creator Studio
       </h1>
       <div className="form-field mb-4">
-        <label id="quizTitle" className="font-raleway">
+        <label id="quizTitle" className="">
           Quiz Title
         </label>
         <input
@@ -95,7 +95,7 @@ const QuizGameQuizCreator: React.FC = () => {
       <div id="allQuestions">
         {questions.map((question, index) => (
           <div key={index} id="question-field" className="border p-4 mb-4">
-            <label className="block font-raleway mb-2">
+            <label className="block  mb-2">
               Question {index + 1}:
             </label>
             <input
@@ -108,7 +108,7 @@ const QuizGameQuizCreator: React.FC = () => {
               }
               autoFocus
             />
-            <label className="block font-raleway mb-2">Answer 1:</label>
+            <label className="block  mb-2">Answer 1:</label>
             <input
               className="w-full p-2 border rounded mb-4"
               id={`${index + 1}a1`}
@@ -117,7 +117,7 @@ const QuizGameQuizCreator: React.FC = () => {
               onChange={(e) => updateQuestion(index, "answer1", e.target.value)}
               autoFocus
             />
-            <label className="block font-raleway mb-2">Answer 2:</label>
+            <label className="block  mb-2">Answer 2:</label>
             <input
               className="w-full p-2 border rounded mb-4"
               id={`${index + 1}a2`}
@@ -126,7 +126,7 @@ const QuizGameQuizCreator: React.FC = () => {
               onChange={(e) => updateQuestion(index, "answer2", e.target.value)}
               autoFocus
             />
-            <label className="block font-raleway mb-2">Answer 3:</label>
+            <label className="block  mb-2">Answer 3:</label>
             <input
               className="w-full p-2 border rounded mb-4"
               id={`${index + 1}a3`}
@@ -135,7 +135,7 @@ const QuizGameQuizCreator: React.FC = () => {
               onChange={(e) => updateQuestion(index, "answer3", e.target.value)}
               autoFocus
             />
-            <label className="block font-raleway mb-2">Answer 4:</label>
+            <label className="block  mb-2">Answer 4:</label>
             <input
               className="w-full p-2 border rounded mb-4"
               id={`${index + 1}a4`}
@@ -144,7 +144,7 @@ const QuizGameQuizCreator: React.FC = () => {
               onChange={(e) => updateQuestion(index, "answer4", e.target.value)}
               autoFocus
             />
-            <label className="block font-raleway mb-2">
+            <label className="block  mb-2">
               Correct Answer (1-4):
             </label>
             <input

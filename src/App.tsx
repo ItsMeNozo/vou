@@ -12,6 +12,7 @@ import QuizGameHost from "./pages/QuizGame/Host/Host.tsx";
 import QuizGameHostGameView from "./pages/QuizGame/HostGameView/HostGameView.tsx";
 import QuizGameLobby from "./pages/QuizGame/Lobby/Lobby.tsx";
 import QuizGamePlayerGameView from "./pages/QuizGame/PlayerGameView/PlayerGameView.tsx";
+import QuizGameMain from "./pages/QuizGame/Main/Main.tsx";
 
 const Layout = () => {
   return (
@@ -98,6 +99,10 @@ const router = createBrowserRouter([
             element: <QuizGamePlayerGameView />,
           },
         ],
+      },
+      {
+        path: "main",
+        element: <QuizGameMain />,
       },
     ],
   },

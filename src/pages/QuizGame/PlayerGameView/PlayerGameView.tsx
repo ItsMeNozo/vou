@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSocket } from "@/contexts/SocketContext"; // Assuming you have a SocketContext set up
+import { useSocket } from "@/contexts/SocketContext"; 
 import { useSearchParams } from "react-router-dom";
 
 interface PlayerData {
@@ -115,15 +115,15 @@ const QuizGamePlayerGameView: React.FC = () => {
   return (
     <div className="h-screen flex flex-col items-center justify-center">
       <div id="stats" className="flex space-x-4 mb-4">
-        <h4 id="nameText" className="font-raleway">
+        <h4 id="nameText" className="">
           Name: {name}
         </h4>
-        <h4 id="scoreText" className="font-raleway">
+        <h4 id="scoreText" className="">
           Score: {score}
         </h4>
-        <h4 id="rankText" className="font-raleway"></h4>
+        <h4 id="rankText" className=""></h4>
       </div>
-      <h2 id="message" className="font-raleway text-center text-2xl mb-8">
+      <h2 id="message" className=" text-center text-2xl mb-8">
         {message}
       </h2>
       <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
