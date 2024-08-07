@@ -55,8 +55,7 @@ const chartConfig = {
 
 const question = "What is the capital of France?";
 const answers = ["Paris", "London", "Berlin", "Madrid"];
-let trueAnswer = 0;
-const username = "John Doe";
+const trueAnswer = 0;
 const place = 1;
 
 const player = {

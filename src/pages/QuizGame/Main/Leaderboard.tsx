@@ -21,7 +21,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
       <div className="flex flex-col gap-1">
         {players
           .sort((a, b) => b.gameData.score - a.gameData.score)
-          .map((player, index) => (
+          .map((player) => (
             <div className="flex items-center justify-between w-full py-2 px-4 bg-slate-100 rounded-md">
               <div className="flex items-center gap-2">
                 <img
