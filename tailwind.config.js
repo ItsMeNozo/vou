@@ -66,10 +66,18 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        bgcolor: {
+          "0%": { backgroundColor: "#45a3e5" },
+          "30%": { backgroundColor: "#66bf39" },
+          "60%": { backgroundColor: "#eb670f" },
+          "90%": { backgroundColor: "#f35" },
+          "100%": { backgroundColor: "#864cbf" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        bgcolor: "bgcolor 20s infinite alternate",
       },
     },
   },
