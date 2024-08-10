@@ -10,6 +10,7 @@ import NotificationList from "./pages/NotificationList/NotificationList.tsx";
 import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
 import Profile from "./pages/Profile/Profile.tsx";
 import Login from "./pages/Login/Login.tsx";
+import Signup from "./pages/Signup/Signup.tsx";
 
 const Layout = () => {
   return (
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />
+      },
+      {
+        path: "/signup",
+        element: <Signup />
       }
     ],
   },
