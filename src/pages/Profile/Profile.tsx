@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import User from "@/types/User";
 import avatarImg from "@/assets/avatar.png"
+import { useNavigate } from "react-router-dom";
 
 const Profile: React.FC = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User>({
     profileImgUrl: avatarImg, // Placeholder image URL
     fullName: "John Doe",
@@ -29,6 +31,7 @@ const Profile: React.FC = () => {
 
   const handleLogout = () => {
     console.log("User logged out");
+    navigate("/login")
     // Add logout logic here
   };
 

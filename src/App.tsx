@@ -9,6 +9,7 @@ import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
 import NotificationList from "./pages/NotificationList/NotificationList.tsx";
 import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
 import Profile from "./pages/Profile/Profile.tsx";
+import Login from "./pages/Login/Login.tsx";
 
 const Layout = () => {
   return (
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />
+      },
+      {
+        path: "/login",
+        element: <Login />
       }
     ],
   },
