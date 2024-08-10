@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Notification from '@/types/Notification';
+import { formatDateFromNow } from '@/utils/DateUtils';
 import moment from "moment";
 
 
@@ -80,7 +81,7 @@ const NotificationList: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-slate-400 text-xs">
-                  {moment(notification.createdAt).fromNow()}
+                  {formatDateFromNow(notification.createdAt)}
                 </div>
               </div>
             </div>
