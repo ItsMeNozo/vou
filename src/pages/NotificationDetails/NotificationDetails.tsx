@@ -15,8 +15,8 @@ const NotificationDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   return (
-    <div className="max-w-2xl mx-auto my-8 p-6 bg-white rounded-lg shadow-lg">
-      <div className="sticky top-0 z-50 bg-white p-4 border-b border-gray-200">
+    <div className="max-w-2xl mx-auto my-8 p-6 pt-0 bg-white rounded-lg shadow-lg">
+      <div className="sticky top-0 z-50 tex-left bg-white p-4 border-b border-gray-200">
         <h1 className="text-3xl font-bold">Notification Details</h1>
       </div>
 
@@ -26,14 +26,6 @@ const NotificationDetails: React.FC = () => {
         <p className="mt-4 text-lg text-gray-700">{notification.content}</p>
       </div>
 
-      <div className="mt-6">
-        <h3 className="text-lg font-medium text-gray-900">Status</h3>
-        <p className={`mt-2 inline-block px-3 py-1 rounded-full text-sm font-medium ${
-          notification.read ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
-          {notification.read ? 'Read' : 'Unread'}
-        </p>
-      </div>
     </div>
   );
 }

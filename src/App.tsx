@@ -8,6 +8,7 @@ import EventDetails from "./pages/EventDetails/EventDetails.tsx";
 import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
 import NotificationList from "./pages/NotificationList/NotificationList.tsx";
 import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
+import Profile from "./pages/Profile/Profile.tsx";
 
 const Layout = () => {
   return (
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: "/notification/:id",
         element: <NotificationDetails />
+      },
+      {
+        path: "/profile",
+        element: <Profile />
       }
     ],
   },

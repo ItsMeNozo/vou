@@ -4,6 +4,7 @@ import logo from "../../assets/logo.png";
 import defaultAvatar from "../../assets/avatar.png";
 import { Input } from "@/components/ui/input";
 import "./EventList.css";
+import { useNavigate } from "react-router-dom";
 
 const username = "John Doe";
 const avatar = "";
@@ -77,6 +78,7 @@ const eventItems = [
 ];
 
 const EventList: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedGame, setSelectedGame] = useState("All");
   const [selectedTimeFrames, setSelectedTimeFrames] = useState<{
     [key: string]: string;
@@ -113,6 +115,10 @@ const EventList: React.FC = () => {
     }
   }, [selectedGame]);
 
+  const handleAvatarClick = () => {
+    navigate("/profile")
+  }
+
   const generateNearestTimes = () => {
     const times: { time: string; label: string }[] = [];
     const now = new Date();
@@ -141,7 +147,7 @@ const EventList: React.FC = () => {
           <div className="flex-shrink-0">
             <img src={logo} alt="Logo" className="h-12" />
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center" onClick={handleAvatarClick}>
             <span className="mr-2">{username}</span>
             <img
               src={avatar ? avatar : defaultAvatar}
