@@ -6,6 +6,8 @@ import "./App.css";
 import MainScreen from "./pages/ShakingGame/MainScreen.tsx";
 import EventDetails from "./pages/EventDetails/EventDetails.tsx";
 import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
+import NotificationList from "./pages/NotificationList/NotificationList.tsx";
+import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
 
 const Layout = () => {
   return (
@@ -40,6 +42,14 @@ const router = createBrowserRouter([
       {
         path: "/voucher-details",
         element: <VoucherDetails />
+      },
+      {
+        path: "/notification",
+        element: <NotificationList />
+      },
+      {
+        path: "/notification/:id",
+        element: <NotificationDetails />
       }
     ],
   },
