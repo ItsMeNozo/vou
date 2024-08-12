@@ -1,93 +1,35 @@
-import { useState, useEffect } from "react";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import Event from "@/models/event";
 import logo from "@/assets/logo.png";
 import defaultAvatar from "@/assets/avatar.png";
 import { Input } from "@/components/ui/input";
 import "./EventList.css";
 
+function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 const username = "John Doe";
 const avatar = "";
 
-const eventItems = [
-  {
-    // name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-    name: "Summer Fun Quiz Challenge",
-    description:
-      "Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.",
-    brand_name: "Cool Drinks Inc.",
-    startTime: "2024-07-01T10:00:00Z",
-    endTime: "2024-07-31T22:00:00Z",
-    game_type: "Quiz",
-    status: "Upcoming",
-    imageURL:
-      "https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg",
-  },
-  {
-    // name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-    name: "Summer Fun Quiz Challenge",
-    description:
-      "Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.",
-    brand_name: "Cool Drinks Inc.",
-    startTime: "2024-07-01T10:00:00Z",
-    endTime: "2024-07-31T22:00:00Z",
-    game_type: "Quiz",
-    status: "Upcoming",
-    imageURL:
-      "https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg",
-  },
-  {
-    // name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-    name: "Summer Fun Quiz Challenge",
-    description:
-      "Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.",
-    brand_name: "Cool Drinks Inc.",
-    startTime: "2024-07-01T10:00:00Z",
-    endTime: "2024-07-31T22:00:00Z",
-    game_type: "Quiz",
-    status: "Upcoming",
-    imageURL:
-      "https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg",
-  },
-  {
-    // name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-    name: "Summer Fun Quiz Challenge",
-    description:
-      "Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.",
-    brand_name: "Cool Drinks Inc.",
-    startTime: "2024-07-01T10:00:00Z",
-    endTime: "2024-07-31T22:00:00Z",
-    game_type: "Quiz",
-    status: "Upcoming",
-    imageURL:
-      "https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg",
-  },
-  {
-    // name, description, imageURL, brand, startTime, endTime, vouchers: [{voucher, quantity}], game, status
-    name: "Summer Fun Quiz Challenge",
-    description:
-      "Join our Summer Fun Quiz Challenge and stand a chance to win refreshing prizes every day! Answer fun trivia questions and earn vouchers.",
-    brand_name: "Cool Drinks Inc.",
-    startTime: "2024-07-01T10:00:00Z",
-    endTime: "2024-07-31T22:00:00Z",
-    game_type: "Quiz",
-    status: "Upcoming",
-    imageURL:
-      "https://ohiostate.pressbooks.pub/app/uploads/sites/8/2016/09/ThinkstockPhotos-483171893.jpg",
-  },
-];
-
 const EventList: React.FC = () => {
+  const [events, setEvents] = useState<Event[]>([]);
   const [selectedGame, setSelectedGame] = useState("All");
   const [selectedTimeFrames, setSelectedTimeFrames] = useState<{
     [key: string]: string;
   }>({
-    All: "Happening",
-    "Shaking game": "Happening",
+    All: "",
+    "Shaking game": "",
     "Quiz game": "",
   });
   const [quizGameTimes, setQuizGameTimes] = useState<
     { time: string; label: string }[]
   >([]);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [totalQuizGames, setTotalQuizGames] = useState(0);
+  const [totalShakingGames, setTotalShakingGames] = useState(0);
 
   const handleSelectGame = (buttonName: string) => {
     setSelectedGame(buttonName);
@@ -96,43 +38,140 @@ const EventList: React.FC = () => {
   const handleSelectTimeFrame = (buttonName: string) => {
     setSelectedTimeFrames((prevState) => ({
       ...prevState,
-      [selectedGame]: buttonName,
+      [selectedGame]: prevState[selectedGame] === buttonName ? "" : buttonName,
     }));
   };
 
-  useEffect(() => {
-    if (selectedGame === "Quiz game") {
-      const times = generateNearestTimes();
-      setQuizGameTimes(times);
-      if (times.length > 0) {
-        setSelectedTimeFrames((prevState) => ({
-          ...prevState,
-          "Quiz game": times[0].time,
-        }));
-      }
-    }
-  }, [selectedGame]);
-
-  const generateNearestTimes = () => {
-    const times: { time: string; label: string }[] = [];
-    const now = new Date();
-    const currentHour = now.getHours();
-    const nextStartHour = Math.ceil(currentHour / 3) * 3; // Find the next hour divisible by 3
-
-    for (let i = 0; i < 5; i++) {
-      const futureTime = new Date(now);
-      futureTime.setHours(nextStartHour + i * 3, 0, 0, 0); // Set the time to the next 3-hour interval
-      const hours = futureTime.getHours().toString().padStart(2, "0");
-      const minutes = futureTime.getMinutes().toString().padStart(2, "0");
-      const label = i === 0 ? "Happening" : "Upcoming";
-      times.push({ time: `${hours}:${minutes}`, label });
-    }
-    return times;
+  const handleSelectQuizGameTime = (timeObj: {
+    time: string;
+    label: string;
+  }) => {
+    setSelectedTimeFrames((prevState) => ({
+      ...prevState,
+      "Quiz game": prevState["Quiz game"] === timeObj.time ? "" : timeObj.time,
+    }));
   };
 
-  const totalEvents = 10;
-  const totalShakingGames = 4;
-  const totalQuizGames = 6;
+  const handleSearch = async (query: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/event/search?input=${query}`,
+      );
+      setEvents(response.data);
+    } catch (err) {
+      console.log("Failed to fetch events");
+    }
+  };
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/event/");
+        setEvents(response.data);
+      } catch (err) {
+        console.log("Failed to fetch events");
+      }
+    };
+
+    const fetchNumberOfEvents = async () => {
+      try {
+        let response = await axios.get("http://localhost:3001/event/count");
+        setTotalEvents(response.data.count);
+        response = await axios.get(
+          "http://localhost:3001/event/count?game=quiz",
+        );
+        setTotalQuizGames(response.data.count);
+        response = await axios.get(
+          "http://localhost:3001/event/count?game=shaking",
+        );
+        setTotalShakingGames(response.data.count);
+      } catch (err) {
+        console.log("Failed to fetch number of events");
+      }
+    };
+
+    const fetchQuizGameTimes = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/event/event-times-today",
+        );
+        const now = new Date();
+
+        const times = response.data.map((time: Date) => {
+          const eventTime = new Date(time);
+          const formattedTime = eventTime.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+          const label = eventTime > now ? "Upcoming" : "Happening";
+
+          return {
+            time: formattedTime,
+            label: label,
+          };
+        });
+
+        setQuizGameTimes(times);
+      } catch (err) {
+        console.log("Failed to fetch quiz game times");
+      }
+    };
+
+    fetchEvents();
+    fetchNumberOfEvents();
+    fetchQuizGameTimes();
+  }, []);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        let url = "http://localhost:3001/event/";
+
+        if (
+          selectedGame !== "All" ||
+          selectedTimeFrames[selectedGame] ||
+          quizGameTimes.length > 0
+        ) {
+          const params = new URLSearchParams();
+
+          if (selectedGame !== "All") {
+            const game = selectedGame === "Shaking game" ? "shaking" : "quiz";
+            params.append("game", game);
+          }
+          if (
+            selectedTimeFrames[selectedGame] == "happening" ||
+            selectedTimeFrames[selectedGame] == "upcoming"
+          ) {
+            params.append("status", selectedTimeFrames[selectedGame]);
+          } else {
+            params.delete("status");
+          }
+
+          if (selectedGame == "Quiz game" && quizGameTimes.length > 0) {
+            const quizGameTime = quizGameTimes.find(
+              (time) => time.time == selectedTimeFrames["Quiz game"],
+            );
+            if (quizGameTime) {
+              const [hours, minutes] = quizGameTime.time.split(":");
+              const date = new Date();
+              date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+              params.append("start-time", date.toISOString());
+            }
+          }
+
+          url = `http://localhost:3001/event/filter?${params.toString()}`;
+        }
+
+        const response = await axios.get(url);
+        setEvents(response.data);
+      } catch (err) {
+        console.log("Failed to fetch events");
+      }
+    };
+
+    fetchEvents();
+  }, [selectedGame, selectedTimeFrames, quizGameTimes]);
 
   return (
     <>
@@ -176,95 +215,116 @@ const EventList: React.FC = () => {
           {/* ---------------------------------------------------------------------- */}
           {/* Timeframe filter */}
           <div className="shadow-sm">
-            {selectedGame === "Quiz game" ? (
-              <div className="p-1 bg-slate-50 flex overflow-x-auto w-screen hidden-scrollbar">
-                {quizGameTimes.map((timeObj, index) => (
+            <div className="p-1 bg-slate-50 flex overflow-x-auto w-screen hidden-scrollbar">
+              {selectedGame !== "Quiz game" && (
+                <button
+                  className={`bg-white flex-1 p-2 border rounded-lg m-1 ${
+                    selectedTimeFrames[selectedGame] === "happening"
+                      ? "border-[#7d4af9] text-[#7d4af9]"
+                      : "border-gray-500"
+                  }`}
+                  onClick={() => handleSelectTimeFrame("happening")}
+                >
+                  <span className="">Happening</span>
+                </button>
+              )}
+              {selectedGame === "Quiz game" &&
+                quizGameTimes.map((timeObj, index) => (
                   <div
                     key={index}
-                    className={`bg-white min-w-28 p-2 border rounded-lg m-1 whitespace-nowrap text-center ${
+                    className={`flex-1 bg-white min-w-28 p-2 border rounded-lg m-1 whitespace-nowrap text-center ${
                       selectedTimeFrames["Quiz game"] === timeObj.time
                         ? "border-[#7d4af9] text-[#7d4af9]"
                         : "border-gray-500"
                     }`}
-                    onClick={() => handleSelectTimeFrame(timeObj.time)}
+                    onClick={() => handleSelectQuizGameTime(timeObj)}
                   >
                     <div className="font-semibold text-xl">{timeObj.time}</div>
                     <div>{timeObj.label}</div>
                   </div>
                 ))}
-              </div>
-            ) : (
-              <div className="p-1 bg-slate-50 flex">
-                <button
-                  className={`bg-white flex-1 p-2 border rounded-lg m-1 ${selectedTimeFrames[selectedGame] === "Happening" ? "border-[#7d4af9]  text-[#7d4af9]" : "border-gray-500"}`}
-                  onClick={() => handleSelectTimeFrame("Happening")}
-                >
-                  <span className="">Happening</span>
-                </button>
-                <button
-                  className={`bg-white flex-1 p-2 border rounded-lg m-1 ${selectedTimeFrames[selectedGame] === "Upcoming" ? "border-[#7d4af9]  text-[#7d4af9]" : "border-gray-500"}`}
-                  onClick={() => handleSelectTimeFrame("Upcoming")}
-                >
-                  <span className="">Upcoming</span>
-                </button>
-              </div>
-            )}
+
+              <button
+                className={`min-w-28 bg-white flex-1 p-2 border rounded-lg m-1 ${
+                  selectedTimeFrames[selectedGame] === "upcoming"
+                    ? "border-[#7d4af9] text-[#7d4af9]"
+                    : "border-gray-500"
+                }`}
+                onClick={() => handleSelectTimeFrame("upcoming")}
+              >
+                <span className="">Upcoming</span>
+              </button>
+            </div>
           </div>
         </div>
         {/* ---------------------------------------------------------------------- */}
         {/* Searchbar */}
         <div className="m-4">
-          <Input placeholder="Search" className="" />
+          <Input
+            placeholder="Search"
+            className="text-md"
+            onChange={(e) => handleSearch(e.target.value)}
+          />
         </div>
         {/* ---------------------------------------------------------------------- */}
         {/* Event list */}
         <div>
-          {eventItems.map((event, index) => (
-            <div
-              key={index}
-              className="flex m-2 p-2 border-b border-slate-300 relative"
-            >
-              <div className="w-1/3">
-                <div className="aspect-w-1 aspect-h-1">
-                  <img
-                    src={event.imageURL}
-                    alt={event.name}
-                    className="object-cover rounded-lg"
-                  />
+          {events &&
+            events.map((event, index) => (
+              <Link to={`/event/${event.id}`} key={index}>
+                <div className="flex m-2 p-2 border-b border-slate-300 relative">
+                  <div className="w-1/3">
+                    <div className="aspect-w-1 aspect-h-1">
+                      <img
+                        src={event.imgUrl}
+                        alt={event.name}
+                        className="object-cover rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <div className="w-2/3 pl-2 text-left flex flex-col justify-between">
+                    <div>
+                      <div className="mb-1 font-semibold line-clamp-1">
+                        {event.name}
+                      </div>
+                      <div className="mb-2 line-clamp-2 text-sm">
+                        {event.description}
+                      </div>
+                      <div className="font-medium">{event.brand}</div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="text-[#7d4af9]">
+                        {new Date(event.startDate).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                        })}{" "}
+                        -{" "}
+                        {new Date(event.endDate).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                        })}
+                      </div>
+                      <div
+                        className={`${
+                          event.status == "upcoming"
+                            ? "bg-yellow-400"
+                            : "bg-green-400"
+                        } p-1 rounded-md`}
+                      >
+                        {capitalizeFirstLetter(event.status)}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className={`text-white ${
+                      event.game == "quiz" ? "bg-blue-500" : "bg-orange-400"
+                    } p-1 rounded-md text-sm absolute -top-0.5 -left-0.5`}
+                  >
+                    {capitalizeFirstLetter(event.game)}
+                  </div>
                 </div>
-              </div>
-              <div className="w-2/3 pl-2 text-left flex flex-col justify-between">
-                <div>
-                  <div className="mb-1 font-semibold line-clamp-1">
-                    {event.name}
-                  </div>
-                  <div className="mb-2 line-clamp-2 text-sm">
-                    {event.description}
-                  </div>
-                  <div className="font-medium">{event.brand_name}</div>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <div className="text-[#7d4af9]">
-                    {new Date(event.startTime).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                    })}{" "}
-                    -{" "}
-                    {new Date(event.endTime).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                    })}
-                  </div>
-                  <div className="bg-yellow-400 p-1 rounded-md">
-                    {event.status}
-                  </div>
-                </div>
-              </div>
-              <div className="text-white bg-blue-500 p-1 rounded-md text-sm absolute -top-0.5 -left-0.5">
-                {event.game_type}
-              </div>
-            </div>
-          ))}
+              </Link>
+            ))}
         </div>
       </div>
     </>
