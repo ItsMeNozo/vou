@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 import cors from 'cors'; 
 import eventRoute from './routes/eventRoute';
 
-const port = process.env.PORT || 3001;
+const port = process.env.CAMPAIGN_PORT || 3001;
 
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/campaignService';
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
 
 const connectToDatabase = async () => {
   try {

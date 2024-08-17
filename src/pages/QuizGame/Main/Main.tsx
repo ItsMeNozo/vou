@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+
 import defaultAvatar from "@/assets/avatar.png";
-import { useSocket } from "@/contexts/SocketContext";
 import { SlackParticles, SnowParticles } from "@/components/ui/particles";
 import { AnimatedTalkingMC, AnimatedIdleMC } from "@/components/ui/animatedMC";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCloseSharp } from "react-icons/io5";
 import { Bar, BarChart, CartesianGrid, LabelList, YAxis } from "recharts";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+
+import { useSocket } from "@/contexts/SocketContext";
+
 import Leaderboard from "./Leaderboard";
 import "./Main.css";
 
@@ -54,7 +57,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const question = "What is the capital of France?";
-const answers = ["Paris", "London", "Berlin", "Madrid"];
 const trueAnswer = 0;
 const place = 1;
 
@@ -67,6 +69,8 @@ const player = {
   avatar: "",
 };
 
+const eventId = "66b70aa8f9d6d14160e0d2dd";
+
 const QuizGameMain: React.FC = () => {
   const socket = useSocket();
   const [searchParams] = useSearchParams();
@@ -75,6 +79,7 @@ const QuizGameMain: React.FC = () => {
   const [name, setName] = useState("");
   const [score, setScore] = useState(0);
   const [message, setMessage] = useState(question);
+  const [answers, setAnswers] = useState(["", "", "", ""]);
   const [questionOver, setQuestionOver] = useState(false);
   const [timeLeft, setTimeLeft] = useState(5);
   const [falseAnswerClass, setFalseAnswerClass] = useState("text-white");
@@ -86,6 +91,9 @@ const QuizGameMain: React.FC = () => {
     "hidden",
   ]);
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
+  const [topPlayers, setTopPlayers] = useState<{ id: string; score: number }[]>(
+    [],
+  );
 
   useEffect(() => {
     if (timeLeft === 0) return;
@@ -99,20 +107,35 @@ const QuizGameMain: React.FC = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const params = Object.fromEntries([...searchParams]);
-    socket.emit("player-join-game", params);
+    socket.emit("player-join-game", {
+      userId: player.playerId,
+      eventId,
+      name: player.name,
+    });
 
     socket.on("noGameFound", () => {
       window.location.href = "/quiz-game";
     });
 
+    socket.on(
+      "gameQuestions",
+      (data: { question: string; answers: string[] }) => {
+        setMessage(data.question);
+        setAnswers(data.answers);
+      },
+    );
+
     socket.on("answerResult", (data: boolean) => {
       setCorrect(data);
     });
 
-    socket.on("questionOver", () => {
-      socket.emit("getScore");
-    });
+    socket.on(
+      "questionOver",
+      (data: { topPlayers: { id: string; score: number }[] }) => {
+        setTopPlayers(data.topPlayers);
+        socket.emit("getScore");
+      },
+    );
 
     socket.on("newScore", (data: number) => {
       setScore(data);
@@ -127,18 +150,6 @@ const QuizGameMain: React.FC = () => {
       document.body.style.backgroundColor = "white";
     });
 
-    socket.on("hostDisconnect", () => {
-      window.location.href = "/quiz-game";
-    });
-
-    socket.on("playerGameData", (data: PlayerData[]) => {
-      const player = data.find((player) => player.playerId === socket.id);
-      if (player) {
-        setName(player.name);
-        setScore(player.gameData.score);
-      }
-    });
-
     socket.on("GameOver", () => {
       document.body.style.backgroundColor = "#FFFFFF";
       setButtonVisibility(false);
@@ -151,8 +162,6 @@ const QuizGameMain: React.FC = () => {
       socket.off("questionOver");
       socket.off("newScore");
       socket.off("nextQuestionPlayer");
-      socket.off("hostDisconnect");
-      socket.off("playerGameData");
       socket.off("GameOver");
     };
   }, [socket]);
@@ -209,7 +218,7 @@ const QuizGameMain: React.FC = () => {
     if (playerAnswered == -1) {
       setPlayerAnswered(num);
       if (socket) {
-        socket.emit("playerAnswer", num);
+        socket.emit("playerAnswer", num, timeLeft);
       }
       setButtonVisibility(false);
       setMessage("Answer Submitted! Waiting on other players...");
@@ -333,7 +342,7 @@ const QuizGameMain: React.FC = () => {
           )}
 
           {/* Leaderboard */}
-          {leaderboardVisible && <Leaderboard players={[player, player]} />}
+          {leaderboardVisible && <Leaderboard topPlayers={topPlayers} />}
         </div>
       </div>
 

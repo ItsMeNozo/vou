@@ -1,10 +1,16 @@
 import http from "http";
-import express from "express"; 
+import express from "express";
 import cors from "cors";
 import { Server, Socket } from "socket.io";
 import mongoose, { Document, Schema } from "mongoose";
-import { LiveGames } from "./utils/liveGames";
-import { Players } from "./utils/players";
+import cron from "node-cron";
+import axios from "axios";
+
+import { LiveGames } from "./models/liveGames";
+import { Players } from "./models/players";
+
+import quizRoute from "./routes/quizRoute";
+import QuizSet from "./models/quizSet";
 
 const app = express();
 const server = http.createServer(app);
@@ -16,9 +22,24 @@ const io = new Server(server, {
 });
 const games = new LiveGames();
 const players = new Players();
-const url = "mongodb://localhost:27017/";
 
+const port = process.env.QUIZ_GAME_PORT || 3000;
+const mongoURI = process.env.MONGODB_URI || "mongodb://localhost:27017/";
+
+app.use("/quiz", quizRoute);
 app.use(cors());
+
+server.listen(port, () => {
+  console.log("Server started on port 3000");
+});
+
+mongoose
+  .connect(mongoURI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
 
 interface IKahootGame extends Document {
   id: number;
@@ -42,19 +63,163 @@ const kahootGameSchema = new Schema<IKahootGame>({
   ],
 });
 
+interface Event {
+  id: string;
+  startDate: string;
+}
+
 const KahootGame = mongoose.model<IKahootGame>("KahootGame", kahootGameSchema);
 
-// Starting server on port 3000
-server.listen(3000, () => {
-  console.log("Server started on port 3000");
-});
+const scheduleGameStart = async () => {
+  const response = await axios.get(
+    "http://localhost:3001/event/filter?game=quiz",
+  );
+  const events = response.data;
 
-mongoose.connect(url)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
+  if (events && events.length > 0) {
+    events.forEach((event: Event) => {
+      const startDate = new Date(event.startDate);
+      const now = new Date();
+
+      if (startDate > now) {
+        const cronTime = `${startDate.getMinutes()} ${startDate.getHours()} ${startDate.getDate()} ${startDate.getMonth() + 1} *`;
+        cron.schedule(cronTime, async () => {
+          games.addGame(event.id, false, {
+            playersAnswered: 0,
+            questionLive: false,
+            question: 1,
+          });
+
+          const game = games.getGame(event.id);
+          if (!game) {
+            return;
+          }
+          game.gameLive = true;
+
+          //
+          // emit instructions to AI
+          //
+
+          const quizSet = await QuizSet.findOne({ eventId: event.id });
+          if (quizSet) {
+            const { question, answers } = quizSet.quizzes[0];
+
+            io.to(event.id).emit("gameQuestions", {
+              question,
+              answers,
+            });
+
+            game.gameData.questionLive = true;
+
+            setTimeout(() => nextQuestion(event.id), 20000);
+          }
+        });
+      }
+    });
+  }
+};
+
+const nextQuestion = async (eventId: string) => {
+  const game = games.getGame(eventId);
+  if (!game) return;
+
+  game.gameData.questionLive = false;
+  const playerData = players.getPlayers(eventId);
+
+  io.to(eventId).emit("questionOver");
+
+  playerData.forEach((player) => {
+    player.gameData.answer = -1;
   });
+
+  game.gameData.playersAnswered = 0;
+  setTimeout(async () => {
+    try {
+      const quizSet = await QuizSet.findOne({ eventId });
+      if (!quizSet) return;
+
+      game.gameData.question += 1;
+      if (quizSet.quizzes.length >= game.gameData.question) {
+        const questionNum = game.gameData.question - 1;
+        const { question, answers } = quizSet.quizzes[questionNum];
+        io.to(eventId).emit("gameQuestions", { question, answers });
+
+        game.gameData.questionLive = true;
+        io.to(eventId).emit("nextQuestionPlayer");
+
+        setTimeout(() => nextQuestion(eventId), 20000);
+      } else {
+        const playersInGame = players.getPlayers(eventId);
+        const topPlayers = playersInGame
+          .map((player) => ({
+            id: player.playerId,
+            score: player.gameData.score,
+          }))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5);
+
+        io.to(eventId).emit("GameOver", { topPlayers });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5000);
+};
+
+scheduleGameStart();
+
+io.on("connection", (socket: Socket) => {
+  socket.on("player-join-game", (data) => {
+    const { eventId, userId, name } = data;
+    const player = players.getPlayerById(userId);
+    if (!player) {
+      players.addPlayer(eventId, socket.id, userId, name, {
+        score: 0,
+        answer: 0,
+      });
+    } else {
+      player.socketId = socket.id;
+    }
+    socket.join(eventId);
+  });
+
+  socket.on("playerAnswer", async (num, timeLeft) => {
+    const player = players.getPlayerBySocketId(socket.id);
+    if (!player) return;
+
+    const eventId = player.eventId;
+    const game = games.getGame(eventId);
+    if (!game) return;
+
+    if (game.gameData.questionLive) {
+      player.gameData.answer = num;
+      game.gameData.playersAnswered += 1;
+
+      const gameQuestion = game.gameData.question;
+
+      try {
+        const quizSet = await QuizSet.findOne({ eventId });
+        if (!quizSet) return;
+
+        const correctAnswer = quizSet.quizzes[gameQuestion - 1].correct;
+
+        if (num == correctAnswer) {
+          player.gameData.score += 100 + (timeLeft / 20) * 100;
+          socket.emit("answerResult", true);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  });
+
+  socket.on("getScore", () => {
+    const player = players.getPlayerBySocketId(socket.id);
+    if (player) {
+      socket.emit("newScore", player.gameData.score);
+    }
+  });
+});
 
 io.on("connection", (socket: Socket) => {
   socket.on("host-join", async (data) => {
@@ -66,7 +231,7 @@ io.on("connection", (socket: Socket) => {
         games.addGame(gamePin, socket.id, false, {
           playersAnswered: 0,
           questionLive: false,
-          gameid: data.id,
+          gameId: data.id,
           question: 1,
         });
 
@@ -98,9 +263,9 @@ io.on("connection", (socket: Socket) => {
         }
       });
 
-      const gameid = game.gameData["gameid"];
+      const gameId = game.gameData["gameId"];
       try {
-        const kahootGame = await KahootGame.findOne({ id: parseInt(gameid) });
+        const kahootGame = await KahootGame.findOne({ id: parseInt(gameId) });
 
         if (kahootGame) {
           const { question, answers, correct } = kahootGame.questions[0];
@@ -113,10 +278,9 @@ io.on("connection", (socket: Socket) => {
             correct,
             playersInGame: playerData.length,
           });
+          io.to(game.pin).emit("gameStartedPlayer");
+          game.gameData.questionLive = true;
         }
-
-        io.to(game.pin).emit("gameStartedPlayer");
-        game.gameData.questionLive = true;
       } catch (err) {
         console.error(err);
         socket.emit("noGameFound");
@@ -132,7 +296,10 @@ io.on("connection", (socket: Socket) => {
       if (params.pin === game.pin) {
         console.log("Player connected to game");
         const hostId = game.hostId;
-        players.addPlayer(hostId, socket.id, params.name, { score: 0, answer: 0 });
+        players.addPlayer(hostId, socket.id, params.name, {
+          score: 0,
+          answer: 0,
+        });
         socket.join(params.pin);
 
         const playersInGame = players.getPlayers(hostId);
@@ -208,14 +375,14 @@ io.on("connection", (socket: Socket) => {
       game.gameData.playersAnswered += 1;
 
       const gameQuestion = game.gameData.question;
-      const gameid = game.gameData.gameid;
+      const gameId = game.gameData.gameId;
 
       try {
-        const kahootGame = await KahootGame.findOne({ id: parseInt(gameid) });
+        const kahootGame = await KahootGame.findOne({ id: parseInt(gameId) });
         if (!kahootGame) return;
 
         const correctAnswer = kahootGame.questions[gameQuestion - 1].correct;
-        
+
         if (num == correctAnswer) {
           player.gameData.score += 100;
           io.to(game.pin).emit("getTime", socket.id);
@@ -246,7 +413,7 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("time", (data) => {
-    const time = data.time / 20 * 100;
+    const time = (data.time / 20) * 100;
     const player = players.getPlayer(data.player);
     if (player) {
       player.gameData.score += time;
@@ -261,10 +428,10 @@ io.on("connection", (socket: Socket) => {
     const playerData = players.getPlayers(game.hostId);
 
     const gameQuestion = game.gameData.question;
-    const gameid = game.gameData.gameid;
+    const gameId = game.gameData.gameId;
 
     try {
-      const kahootGame = await KahootGame.findOne({ id: parseInt(gameid) });
+      const kahootGame = await KahootGame.findOne({ id: parseInt(gameId) });
       if (kahootGame) {
         const correctAnswer = kahootGame.questions[gameQuestion - 1].correct;
         io.to(game.pin).emit("questionOver", playerData, correctAnswer);
@@ -289,15 +456,16 @@ io.on("connection", (socket: Socket) => {
     game.gameData.playersAnswered = 0;
     game.gameData.questionLive = true;
     game.gameData.question += 1;
-    const gameid = game.gameData.gameid;
+    const gameId = game.gameData.gameId;
 
     try {
-      const kahootGame = await KahootGame.findOne({ id: parseInt(gameid) });
+      const kahootGame = await KahootGame.findOne({ id: parseInt(gameId) });
       if (!kahootGame) return;
 
       if (kahootGame.questions.length >= game.gameData.question) {
         const questionNum = game.gameData.question - 1;
-        const { question, answers, correct } = kahootGame.questions[questionNum];
+        const { question, answers, correct } =
+          kahootGame.questions[questionNum];
         socket.emit("gameQuestions", {
           q1: question,
           a1: answers[0],
@@ -348,7 +516,10 @@ io.on("connection", (socket: Socket) => {
                   ];
                 }
               } else {
-                [fifth, fourth] = [fourth, { name: player.name, score: playerScore }];
+                [fifth, fourth] = [
+                  fourth,
+                  { name: player.name, score: playerScore },
+                ];
               }
             } else {
               fifth = { name: player.name, score: playerScore };
