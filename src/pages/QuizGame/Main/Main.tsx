@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 import defaultAvatar from "@/assets/avatar.png";
 import { SlackParticles, SnowParticles } from "@/components/ui/particles";
@@ -9,19 +8,10 @@ import { IoCloseSharp } from "react-icons/io5";
 import { Bar, BarChart, CartesianGrid, LabelList, YAxis } from "recharts";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
-import { useSocket } from "@/contexts/SocketContext";
+import { useSocket } from "@/contexts/SocketContext"; 
 
 import Leaderboard from "./Leaderboard";
 import "./Main.css";
-
-interface PlayerData {
-  playerId: string;
-  avatar: string;
-  name: string;
-  gameData: {
-    score: number;
-  };
-}
 
 function getPlaceSuffix(place: number) {
   if (place % 10 === 1 && place % 100 !== 11) {
@@ -56,10 +46,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const question = "What is the capital of France?";
-const trueAnswer = 0;
-const place = 1;
-
 const player = {
   playerId: "123",
   name: "John Doe",
@@ -70,18 +56,18 @@ const player = {
 };
 
 const eventId = "66b70aa8f9d6d14160e0d2dd";
-
+ 
 const QuizGameMain: React.FC = () => {
   const socket = useSocket();
-  const [searchParams] = useSearchParams();
   const [playerAnswered, setPlayerAnswered] = useState(-1);
   const [correct, setCorrect] = useState(false);
-  const [name, setName] = useState("");
   const [score, setScore] = useState(0);
-  const [message, setMessage] = useState(question);
+  const [rank, setRank] = useState(1);
+  const [message, setMessage] = useState("");
   const [answers, setAnswers] = useState(["", "", "", ""]);
+  const [correctAnswer, setCorrectAnswer] = useState(-1);
   const [questionOver, setQuestionOver] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(20);
   const [falseAnswerClass, setFalseAnswerClass] = useState("text-white");
   const [falseAnswerClassChart, setFalseAnswerClassChart] = useState("");
   const [answerClass, setAnswerClass] = useState([
@@ -96,73 +82,110 @@ const QuizGameMain: React.FC = () => {
   );
 
   useEffect(() => {
-    if (timeLeft === 0) return;
-    const timerId = setInterval(() => {
-      setTimeLeft(timeLeft - 1);
-    }, 1000);
-
-    return () => clearInterval(timerId);
-  }, [timeLeft]);
-
-  useEffect(() => {
     if (!socket) return;
 
     socket.emit("player-join-game", {
       userId: player.playerId,
       eventId,
-      name: player.name,
+    });
+
+    socket.on("waitingForNextQuestion", () => {
+      setMessage("Waiting for next the question...");
+      setButtonVisibility(false);
+    });
+
+    socket.on( 
+      "gameQuestions",
+      (data: {
+        question: string;
+        answers: string[];
+        timeLeft: number;
+        playerAnswer: number;
+      }) => {
+        if (data.playerAnswer == -1) {
+          setMessage(data.question);
+          setButtonVisibility(true);
+        }
+        setAnswers(data.answers);
+        setTimeLeft(data.timeLeft);
+        setPlayerAnswered(data.playerAnswer);
+      },
+    );
+
+    socket.on(
+      "questionOver",
+      (data: { topPlayers: { id: string; score: number }[] }) => {
+        setTopPlayers(data.topPlayers);
+        setQuestionOver(true);
+        socket.emit("getScore");
+      },
+    );
+
+    socket.on("answerResult", (data: { correct: boolean }) => {
+      setCorrect(data.correct);
+    });
+
+    socket.on("correctAnswer", (data: { correctAnswer: number }) => {
+      setCorrectAnswer(data.correctAnswer);
+    });
+
+    socket.on("newScore", (data: { score: number; rank: number }) => {
+      setScore(data.score);
+      setRank(data.rank);
+      setQuestionOver(true);
+    });
+
+    socket.on("stats", (data: { answersCount: number[] }) => {
+      // chartData[0] = {
+      //   answerA: data.answersCount[0],
+      //   answerB: data.answersCount[1],
+      //   answerC: data.answersCount[2],
+      //   answerD: data.answersCount[3],
+      // };
+    });
+
+    socket.on("leaderboard", () => {
+      setLeaderboardVisible(true);
+    });
+
+    socket.on("nextQuestionPlayer", () => {
+      setCorrect(false);
+      setButtonVisibility(true);
+      setPlayerAnswered(-1);
+      setQuestionOver(false);
+      setFalseAnswerClass("text-white");
+      setAnswerClass(["hidden", "hidden", "hidden", "hidden"]);
+      setMessage("");
+      setLeaderboardVisible(false);
+      document.body.style.backgroundColor = "white";
+    });
+
+    socket.on("gameOver", () => {
+      document.body.style.backgroundColor = "#FFFFFF";
+      setButtonVisibility(false);
+      setQuestionOver(false);
+      setMessage("GAME OVER");
     });
 
     socket.on("noGameFound", () => {
       window.location.href = "/quiz-game";
     });
 
-    socket.on(
-      "gameQuestions",
-      (data: { question: string; answers: string[] }) => {
-        setMessage(data.question);
-        setAnswers(data.answers);
-      },
-    );
-
-    socket.on("answerResult", (data: boolean) => {
-      setCorrect(data);
-    });
-
-    socket.on(
-      "questionOver",
-      (data: { topPlayers: { id: string; score: number }[] }) => {
-        setTopPlayers(data.topPlayers);
-        socket.emit("getScore");
-      },
-    );
-
-    socket.on("newScore", (data: number) => {
-      setScore(data);
-      setQuestionOver(true);
-    });
-
-    socket.on("nextQuestionPlayer", () => {
-      setCorrect(false);
-      setPlayerAnswered(-1);
-      setButtonVisibility(true);
-      setMessage("");
-      document.body.style.backgroundColor = "white";
-    });
-
-    socket.on("GameOver", () => {
-      document.body.style.backgroundColor = "#FFFFFF";
-      setButtonVisibility(false);
-      setMessage("GAME OVER");
+    socket.on("timeUpdate", (data: { timeLeft: number }) => {
+      setTimeLeft(data.timeLeft);
     });
 
     return () => {
-      socket.off("noGameFound");
-      socket.off("answerResult");
+      socket.off("gameQuestions");
       socket.off("questionOver");
+      socket.off("answerResult");
+      socket.off("correctAnswer");
       socket.off("newScore");
+      socket.off("stats");
+      socket.off("leaderboard");
       socket.off("nextQuestionPlayer");
       socket.off("GameOver");
+      socket.off("noGameFound");
     };
   }, [socket]);
 
@@ -181,31 +204,23 @@ const QuizGameMain: React.FC = () => {
     } else {
       setMessage("Incorrect!");
     }
-
-    const showTimer = setTimeout(() => {
-      setLeaderboardVisible(true);
-
-      const hideTimer = setTimeout(() => {
-        setLeaderboardVisible(false);
-        setQuestionOver(false);
-        setTimeLeft(5);
-        setPlayerAnswered(-1);
-        setFalseAnswerClass("text-white");
-        setAnswerClass(["hidden", "hidden", "hidden", "hidden"]);
-        setMessage(question);
-      }, 5000);
-
-      return () => clearTimeout(hideTimer);
-    }, 5000);
-
-    return () => clearTimeout(showTimer);
   }, [questionOver]);
 
   useEffect(() => {
-    if (timeLeft === 0) {
-      setQuestionOver(true);
+    if (!questionOver) return;
+    if (correct) {
+      setMessage("Correct!");
+    } else {
+      setMessage("Incorrect!");
     }
-  });
+  }, [correct]);
+
+  useEffect(() => {
+    if (playerAnswered !== -1) {
+      setButtonVisibility(false);
+      setMessage("Answer submitted! Waiting on other players...");
+    }
+  }, [playerAnswered]);
 
   const setButtonVisibility = (visible: boolean) => {
     const visibility = visible ? "visible" : "hidden";
@@ -220,8 +235,6 @@ const QuizGameMain: React.FC = () => {
       if (socket) {
         socket.emit("playerAnswer", num, timeLeft);
       }
-      setButtonVisibility(false);
-      setMessage("Answer Submitted! Waiting on other players...");
     }
   };
 
@@ -255,7 +268,9 @@ const QuizGameMain: React.FC = () => {
                       dataKey="answerA"
                       fill="var(--color-answerA)"
                       radius={4}
-                      className={trueAnswer !== 0 ? falseAnswerClassChart : ""}
+                      className={
+                        correctAnswer !== 0 ? falseAnswerClassChart : ""
+                      }
                     >
                       <LabelList
                         dataKey="answerA"
@@ -267,7 +282,9 @@ const QuizGameMain: React.FC = () => {
                       dataKey="answerB"
                       fill="var(--color-answerB)"
                       radius={4}
-                      className={trueAnswer !== 1 ? falseAnswerClassChart : ""}
+                      className={
+                        correctAnswer !== 1 ? falseAnswerClassChart : ""
+                      }
                     >
                       <LabelList
                         dataKey="answerB"
@@ -279,7 +296,9 @@ const QuizGameMain: React.FC = () => {
                       dataKey="answerC"
                       fill="var(--color-answerC)"
                       radius={4}
-                      className={trueAnswer !== 2 ? falseAnswerClassChart : ""}
+                      className={
+                        correctAnswer !== 2 ? falseAnswerClassChart : ""
+                      }
                     >
                       <LabelList
                         dataKey="answerC"
@@ -291,7 +310,9 @@ const QuizGameMain: React.FC = () => {
                       dataKey="answerD"
                       fill="var(--color-answerD)"
                       radius={4}
-                      className={trueAnswer !== 3 ? falseAnswerClassChart : ""}
+                      className={
+                        correctAnswer !== 3 ? falseAnswerClassChart : ""
+                      }
                     >
                       <LabelList
                         dataKey="answerD"
@@ -315,21 +336,16 @@ const QuizGameMain: React.FC = () => {
                     key={ind}
                     onClick={() => answerSubmitted(ind)}
                     id={`answer${ind}`}
-                    className={`flex gap-2 items-center text-left w-full p-4 ${ind === 0 ? "bg-[#2EB67D]" : ind === 1 ? "bg-[#ECB22E]" : ind === 2 ? "bg-[#E01E5B]" : "bg-[#36C5F0]"} rounded-md 
-                    ${ind !== trueAnswer ? falseAnswerClass : "text-white"}`}
+                    className={`invisible flex gap-2 items-center text-left w-full p-4 rounded-md
+                    ${["bg-[#2EB67D]", "bg-[#ECB22E]", "bg-[#E01E5B]", "bg-[#36C5F0]"][ind]}  
+                    ${ind !== correctAnswer ? falseAnswerClass : "text-white"}`}
                   >
                     <div>
-                      {ind == 0
-                        ? "A. "
-                        : ind == 1
-                          ? "B. "
-                          : ind == 2
-                            ? "C. "
-                            : "D. "}
+                      {["A. ", "B. ", "C. ", "D. "][ind]}
                       {ans}
                     </div>
                     <div className={`${answerClass[ind]} text-2xl`}>
-                      {ind == trueAnswer ? (
+                      {ind == correctAnswer ? (
                         <IoCheckmarkSharp />
                       ) : (
                         <IoCloseSharp />
@@ -357,8 +373,8 @@ const QuizGameMain: React.FC = () => {
           <span className="mr-2">{player.name}</span>
         </div>
         <div id="scoreText" className="p-2 bg-slate-700 text-white rounded-md">
-          {player.gameData.score} | {place}
-          {getPlaceSuffix(place)}
+          {score} | {rank}
+          {getPlaceSuffix(rank)}
         </div>
       </div>
       <SlackParticles />

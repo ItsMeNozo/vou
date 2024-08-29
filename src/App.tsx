@@ -101,7 +101,7 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "main",
+        path: "main/:id",
         element: <QuizGameMain />,
       },
     ],

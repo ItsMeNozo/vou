@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import Event from "@/models/event";
 import axios from "axios";
@@ -64,12 +64,19 @@ const EventDetails: React.FC = () => {
                   })}
                 </span>
               </div>
-              <div className={`${event.status == "happening" ? "bg-green-400" : "bg-yellow-400"} p-1 rounded-md`}>{capitalizeFirstLetter(event.status)}</div>
+              <div
+                className={`${event.status == "happening" ? "bg-green-400" : "bg-yellow-400"} p-1 rounded-md`}
+              >
+                {capitalizeFirstLetter(event.status)}
+              </div>
             </div>
             <div className="flex gap-2">
-              <div className="flex-1 bg-[#7d4af9] text-white p-3 font-semibold text-xl text-center rounded-md">
+              <Link
+                to={`/quiz-game/main/${event.id}`}
+                className="flex-1 bg-[#7d4af9] text-white p-3 font-semibold text-xl text-center rounded-md"
+              >
                 Play
-              </div>
+              </Link>
               <div className="flex-1 border-slate-700 text-slate-700 border-2 p-3 font-semibold text-xl text-center rounded-md">
                 Favorite
               </div>

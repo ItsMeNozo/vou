@@ -5,7 +5,6 @@ import { Engine } from "tsparticles-engine";
 
 const SlackParticles: React.FC = React.memo(() => {
   const particlesInit = useCallback(async (engine: Engine) => {
-    console.log(engine);
     await loadSlim(engine);
   }, []);
 
@@ -130,7 +129,6 @@ const SlackParticles: React.FC = React.memo(() => {
 
 const SnowParticles: React.FC = React.memo(() => {
   const particlesInit = useCallback(async (engine: Engine) => {
-    console.log(engine);
     await loadSlim(engine);
   }, []);
 
