@@ -1,16 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import defaultAvatar from "@/assets/avatar.png";
 import { SlackParticles, SnowParticles } from "@/components/ui/particles";
 import { AnimatedTalkingMC, AnimatedIdleMC } from "@/components/ui/animatedMC";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCloseSharp } from "react-icons/io5";
-import { Bar, BarChart, CartesianGrid, LabelList, YAxis } from "recharts";
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogClose,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-import { useSocket } from "@/contexts/SocketContext"; 
+import { useSocket } from "@/contexts/SocketContext";
 
 import Leaderboard from "./Leaderboard";
+import Stats from "./Stats";
 import "./Main.css";
 
 function getPlaceSuffix(place: number) {
@@ -25,27 +33,6 @@ function getPlaceSuffix(place: number) {
   }
 }
 
-const chartData = [{ answerA: 10, answerB: 5, answerC: 20, answerD: 1 }];
-
-const chartConfig = {
-  answerA: {
-    label: "Answer A",
-    color: "#2EB67D",
-  },
-  answerB: {
-    label: "Answer B",
-    color: "#ECB22E",
-  },
-  answerC: {
-    label: "Answer C",
-    color: "#E01E5B",
-  },
-  answerD: {
-    label: "Answer D",
-    color: "#36C5F0",
-  },
-} satisfies ChartConfig;
-
 const player = {
   playerId: "123",
   name: "John Doe",
@@ -56,7 +43,7 @@ const player = {
 };
 
 const eventId = "66b70aa8f9d6d14160e0d2dd";
- 
+
 const QuizGameMain: React.FC = () => {
   const socket = useSocket();
   const [playerAnswered, setPlayerAnswered] = useState(-1);
@@ -80,6 +67,11 @@ const QuizGameMain: React.FC = () => {
   const [topPlayers, setTopPlayers] = useState<{ id: string; score: number }[]>(
     [],
   );
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [audio, setAudio] = useState(false);
+  const [chartData, setChartData] = useState([
+    { answerA: 0, answerB: 0, answerC: 0, answerD: 0 },
+  ]);
 
   useEffect(() => {
     if (!socket) return;
@@ -94,7 +86,7 @@ const QuizGameMain: React.FC = () => {
       setButtonVisibility(false);
     });
 
-    socket.on( 
+    socket.on(
       "gameQuestions",
       (data: {
         question: string;
@@ -133,15 +125,19 @@ const QuizGameMain: React.FC = () => {
       setScore(data.score);
       setRank(data.rank);
       setQuestionOver(true);
+      localStorage.setItem("score", data.score.toString());
+      localStorage.setItem("rank", data.rank.toString());
     });
 
     socket.on("stats", (data: { answersCount: number[] }) => {
-      // chartData[0] = {
-      //   answerA: data.answersCount[0],
-      //   answerB: data.answersCount[1],
-      //   answerC: data.answersCount[2],
-      //   answerD: data.answersCount[3],
-      // };
+      setChartData([
+        {
+          answerA: data.answersCount[0],
+          answerB: data.answersCount[1],
+          answerC: data.answersCount[2],
+          answerD: data.answersCount[3],
+        },
+      ]);
     });
 
     socket.on("leaderboard", () => {
@@ -150,12 +146,11 @@ const QuizGameMain: React.FC = () => {
 
     socket.on("nextQuestionPlayer", () => {
       setCorrect(false);
-      setButtonVisibility(true);
       setPlayerAnswered(-1);
       setQuestionOver(false);
       setFalseAnswerClass("text-white");
       setAnswerClass(["hidden", "hidden", "hidden", "hidden"]);
-      setMessage("");
+      setMessage("Waiting for next the question...");
       setLeaderboardVisible(false);
       document.body.style.backgroundColor = "white";
     });
@@ -175,6 +170,45 @@ const QuizGameMain: React.FC = () => {
       setTimeLeft(data.timeLeft);
     });
 
+    socket.on("audio", (data: { audio: ArrayBuffer }) => {
+      if (audioRef.current) {
+        const blob = new Blob([data.audio], { type: "audio/mp3" });
+        const url = URL.createObjectURL(blob);
+        audioRef.current.src = url;
+        audioRef.current
+          .play()
+          .then(() => {
+            setAudio(true);
+          })
+          .catch((error) => {
+            console.error("Audio Play Error:", error);
+          });
+
+        audioRef.current.addEventListener("ended", () => {
+          setAudio(false);
+        });
+      }
+    });
+
+    socket.on("audioError", (error: string) => {
+      console.error("Audio Error:", error);
+    });
+
+    socket.on("waitingForGameStart", (data: { timeLeft: number }) => {
+      setMessage(`Game will start in ${data.timeLeft} seconds...`);
+    });
+
+    socket.on("startGame", () => {
+      setMessage("Let's get started!");
+    });
+
+    socket.on("resetLocalStorage", () => {
+      localStorage.removeItem("score");
+      localStorage.removeItem("rank");
+      setScore(0);
+      setRank(0);
+    });
+
     return () => {
       socket.off("gameQuestions");
       socket.off("questionOver");
@@ -186,6 +220,12 @@ const QuizGameMain: React.FC = () => {
       socket.off("nextQuestionPlayer");
       socket.off("GameOver");
       socket.off("noGameFound");
+      socket.off("timeUpdate");
+      socket.off("audio");
+      socket.off("audioError");
+      socket.off("waitingForGameStart");
+      socket.off("startGame");
+      socket.off("resetLocalStorage");
     };
   }, [socket]);
 
@@ -222,6 +262,13 @@ const QuizGameMain: React.FC = () => {
     }
   }, [playerAnswered]);
 
+  useEffect(() => {
+    const score = localStorage.getItem("score");
+    const rank = localStorage.getItem("rank");
+    setScore(score ? parseInt(score) : 0);
+    setRank(rank ? parseInt(rank) : 0);
+  }, []);
+
   const setButtonVisibility = (visible: boolean) => {
     const visibility = visible ? "visible" : "hidden";
     for (let i = 0; i < 4; i++) {
@@ -238,13 +285,40 @@ const QuizGameMain: React.FC = () => {
     }
   };
 
+  const handleEnableAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.play().catch((error) => {
+        console.error("Audio Play Error:", error);
+      });
+    }
+  };
+
   return (
     <>
+      <audio ref={audioRef} />
+      <Dialog defaultOpen>
+        <DialogContent className="w-4/5 rounded-lg flex flex-col gap-6">
+          <DialogHeader className="text-left flex flex-col gap-2">
+            <DialogTitle>Enable Audio</DialogTitle>
+            <DialogDescription>
+              Select to enable audio for the game.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="w-full flex justify-end gap-2">
+            <DialogClose>
+              <Button onClick={() => handleEnableAudio()}>Confirm</Button>
+            </DialogClose>
+            <DialogClose>
+              <Button variant="secondary">Cancel</Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
       <div className="mb-32">
         {/* MC */}
         <div className="border-b-2 border-slate-400 bg-[#1f263b] z-10 relative pt-4">
           <SnowParticles />
-          {playerAnswered == -1 ? <AnimatedTalkingMC /> : <AnimatedIdleMC />}
+          {audio ? <AnimatedTalkingMC /> : <AnimatedIdleMC />}
           <div className="countdown-timer absolute bottom-3 left-3">
             <div className="bg-[#7d4af9] text-white p-4 text-2xl font-semibold rounded-full w-16">
               {timeLeft}
@@ -253,75 +327,15 @@ const QuizGameMain: React.FC = () => {
         </div>
 
         <div className="flex flex-col items-center justify-center p-4 z-10 pt-12">
-          {!leaderboardVisible && (
+          {!leaderboardVisible ? (
             <>
               {/* Stats chart */}
               {questionOver && (
-                <ChartContainer
-                  config={chartConfig}
-                  className="w-full aspect-w-16 aspect-h-9 z-10 statsChart mb-8"
-                >
-                  <BarChart accessibilityLayer data={chartData}>
-                    <CartesianGrid vertical={false} />
-                    <YAxis hide domain={[0, "dataMax + 5"]} />
-                    <Bar
-                      dataKey="answerA"
-                      fill="var(--color-answerA)"
-                      radius={4}
-                      className={
-                        correctAnswer !== 0 ? falseAnswerClassChart : ""
-                      }
-                    >
-                      <LabelList
-                        dataKey="answerA"
-                        position="top"
-                        className="text-xl"
-                      />
-                    </Bar>
-                    <Bar
-                      dataKey="answerB"
-                      fill="var(--color-answerB)"
-                      radius={4}
-                      className={
-                        correctAnswer !== 1 ? falseAnswerClassChart : ""
-                      }
-                    >
-                      <LabelList
-                        dataKey="answerB"
-                        position="top"
-                        className="text-xl"
-                      />
-                    </Bar>
-                    <Bar
-                      dataKey="answerC"
-                      fill="var(--color-answerC)"
-                      radius={4}
-                      className={
-                        correctAnswer !== 2 ? falseAnswerClassChart : ""
-                      }
-                    >
-                      <LabelList
-                        dataKey="answerC"
-                        position="top"
-                        className="text-xl"
-                      />
-                    </Bar>
-                    <Bar
-                      dataKey="answerD"
-                      fill="var(--color-answerD)"
-                      radius={4}
-                      className={
-                        correctAnswer !== 3 ? falseAnswerClassChart : ""
-                      }
-                    >
-                      <LabelList
-                        dataKey="answerD"
-                        position="top"
-                        className="text-xl"
-                      />
-                    </Bar>
-                  </BarChart>
-                </ChartContainer>
+                <Stats
+                  chartData={chartData}
+                  correctAnswer={correctAnswer}
+                  falseAnswerClassChart={falseAnswerClassChart}
+                />
               )}
 
               {/* Question and message */}
@@ -355,10 +369,10 @@ const QuizGameMain: React.FC = () => {
                 ))}
               </div>
             </>
+          ) : (
+            // Leaderboard
+            <Leaderboard topPlayers={topPlayers} />
           )}
-
-          {/* Leaderboard */}
-          {leaderboardVisible && <Leaderboard topPlayers={topPlayers} />}
         </div>
       </div>
 
