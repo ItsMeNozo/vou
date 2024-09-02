@@ -18,6 +18,14 @@ interface LeaderboardProps {
   topPlayers: TopPlayer[];
 }
 
+const mockPlayers: Player[] = [
+  { id: "1", avatar: "", name: "Player One", score: 100 },
+  { id: "2", avatar: "", name: "Player Two", score: 90 },
+  { id: "3", avatar: "", name: "Player Three", score: 80 },
+  { id: "4", avatar: "", name: "Player Four", score: 70 },
+  { id: "5", avatar: "", name: "Player Five", score: 60 },
+];
+
 const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
   const [players, setPlayers] = useState<Player[]>([]);
 
@@ -37,7 +45,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
         console.error("Error fetching players:", error);
       }
     };
-    fetchPlayers();
+    // fetchPlayers();
+    setPlayers(mockPlayers);
   }, [topPlayers]);
 
   return (
