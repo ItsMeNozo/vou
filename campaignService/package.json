@@ -1,0 +1,22 @@
+{
+  "name": "campainService",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon index.ts"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
