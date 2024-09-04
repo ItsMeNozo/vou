@@ -6,6 +6,7 @@ import logo from "@/assets/logo.png";
 import defaultAvatar from "@/assets/avatar.png";
 import { Input } from "@/components/ui/input";
 import "./EventList.css";
+import { useNavigate } from "react-router-dom";
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -15,6 +16,7 @@ const username = "John Doe";
 const avatar = "";
 
 const EventList: React.FC = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedGame, setSelectedGame] = useState("All");
   const [selectedTimeFrames, setSelectedTimeFrames] = useState<{
@@ -173,6 +175,9 @@ const EventList: React.FC = () => {
     fetchEvents();
   }, [selectedGame, selectedTimeFrames, quizGameTimes]);
 
+  const handleAvatarClick = () => {
+    navigate("/profile")
+  }
   return (
     <>
       <div className="pb-16">
@@ -180,7 +185,7 @@ const EventList: React.FC = () => {
           <div className="flex-shrink-0">
             <img src={logo} alt="Logo" className="h-12" />
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center" onClick={handleAvatarClick}>
             <span className="mr-2">{username}</span>
             <img
               src={avatar ? avatar : defaultAvatar}

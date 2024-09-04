@@ -13,6 +13,12 @@ import QuizGameHostGameView from "./pages/QuizGame/HostGameView/HostGameView.tsx
 import QuizGameLobby from "./pages/QuizGame/Lobby/Lobby.tsx";
 import QuizGamePlayerGameView from "./pages/QuizGame/PlayerGameView/PlayerGameView.tsx";
 import QuizGameMain from "./pages/QuizGame/Main/Main.tsx";
+import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
+import NotificationList from "./pages/NotificationList/NotificationList.tsx";
+import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
+import Profile from "./pages/Profile/Profile.tsx";
+import Login from "./pages/Login/Login.tsx";
+import Signup from "./pages/Signup/Signup.tsx";
 
 const Layout = () => {
   return (
@@ -44,6 +50,30 @@ const router = createBrowserRouter([
         path: "/event/:id",
         element: <EventDetails />,
       },
+      {
+        path: "/voucher-details",
+        element: <VoucherDetails />
+      },
+      {
+        path: "/notification",
+        element: <NotificationList />
+      },
+      {
+        path: "/notification/:id",
+        element: <NotificationDetails />
+      },
+      {
+        path: "/profile",
+        element: <Profile />
+      },
+      {
+        path: "/login",
+        element: <Login />
+      },
+      {
+        path: "/signup",
+        element: <Signup />
+      }
     ],
   },
   {
