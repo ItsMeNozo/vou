@@ -4,18 +4,26 @@ import classes from "./AdditionalPlayAttemptsPopup.module.css";
 
 const friends = ["Nhung", "Nguyen", "John", "Doe"]; // Example list of friends
 
-const AdditionalPlayAttemptsPopup: React.FC = () => {
+type AdditionalPlayAttemptsPopupProps = {
+  onClose: () => void; // Callback to close the popup
+  onGetMoreAttempts: (attempts: number) => void; // Callback to get more attempts, now accepts a number of attempts
+};
+
+const AdditionalPlayAttemptsPopup: React.FC<AdditionalPlayAttemptsPopupProps> = ({
+  onClose,
+  onGetMoreAttempts,
+}) => {
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
 
   const handleRequestFromFriend = (friend: string) => {
     setSelectedFriend(friend);
-    // Handle request logic here
     alert(`Request sent to ${friend} for additional play attempt.`);
   };
 
   const handleShareOnFacebook = () => {
-    // Handle share on Facebook logic here
     alert("Shared on Facebook. You got 5 additional play attempts.");
+    onGetMoreAttempts(5); // Add 5 additional play attempts
+    onClose(); // Close the popup after getting more attempts
   };
 
   return (
@@ -39,6 +47,7 @@ const AdditionalPlayAttemptsPopup: React.FC = () => {
             ))}
           </div>
         </div>
+        <button onClick={onClose} className={classes.close_button}>Close</button>
       </PopoverContent>
     </Popover>
   );
