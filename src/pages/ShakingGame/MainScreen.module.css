@@ -1,16 +1,11 @@
-.navbar {
-  @apply flex
-  items-center
+/* MainScreen.module.css */
 
-  px-4
-  py-2
-  border-b;
+.navbar {
+  @apply flex items-center px-4 py-2 border-b;
 }
 
 .navlink {
-  @apply flex
-  items-center
-  justify-center;
+  @apply flex items-center justify-center;
 }
 
 .username {
@@ -18,17 +13,11 @@
 }
 
 .navlink.profile {
-  @apply flex
-  flex-col
-  items-start
-  gap-0;
+  @apply flex flex-col items-start gap-0;
 }
 
 .navbar_controls {
-  @apply ml-auto
-  flex
-  items-center
-  gap-5;
+  @apply ml-auto flex items-center gap-5;
 }
 
 .navlink .help {
@@ -40,55 +29,74 @@
 }
 
 .main_screen {
-  @apply overflow-hidden 
-  flex 
-  justify-center 
-  items-center
-  px-8;
-  height: calc(100vh - 60px);
+  @apply flex justify-center items-center px-8; /* Ensures content is centered */
+  height: calc(100vh - 60px); /* Adjust based on navbar height */
+  background: linear-gradient(352.71deg, #6530b9 -0.26%, #FFFFFF 73.24%);
 }
 
 .game_menu {
-  @apply flex
-  flex-col
-  gap-8
-  -mt-32;
+  @apply flex flex-col items-center justify-center gap-8;
+  margin-top: -40px; /* Adjust for vertical alignment */
 }
 
 .game_banner {
-  @apply flex
-  items-center
-  justify-center
-  gap-6
-  flex-wrap-reverse;
+  @apply flex items-center justify-center gap-6 flex-wrap-reverse lg:flex-wrap; /* Revert wrapping for larger screens */
 }
 
 .start_btn {
-  @apply px-8
-  py-4
-  bg-purple-700
-  text-white
-  font-semibold
-  rounded-lg
-  hover:bg-purple-600
-  transition-all;
+  @apply px-8 py-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-600 transition-all;
 }
 
 .game_title {
-  @apply text-4xl
-  mb-5
-  font-bold
-  capitalize
-  text-purple-600;
+  @apply text-4xl mb-5 font-bold capitalize text-purple-600;
 }
 
 .shake_image {
-  @apply block
-  mx-auto
-  mt-5;
+  @apply block mx-auto mt-5;
 }
 
 .instruction p {
-  @apply text-white
-  font-medium;
+  @apply text-white font-medium;
+}
+
+.result {
+  @apply text-center;
+  margin-top: 20px;
+}
+
+.random_item {
+  width: 150px;
+  margin: 20px auto;
+}
+
+.start_btn {
+  @apply px-8 py-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-600 transition-all;
+}
+
+/* Box container alignment */
+.box-container {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff; /* White background */
+  border-radius: 10px;
+  border: 2px solid #ccc; /* Box border */
+  margin-bottom: 20px; /* Add space between box and instructions */
+}
+
+.pet-image {
+  width: 150px;
+  height: auto;
+}
+
+.shaking {
+  animation: shake 1.5s; /* Shaking animation duration */
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
 }
