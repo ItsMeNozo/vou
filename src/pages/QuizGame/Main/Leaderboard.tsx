@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import defaultAvatar from "@/assets/avatar.png";
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const AUTH_USER_PORT = process.env.AUTH_USER_PORT || 3001;
 
 interface Player {
   id: string;
@@ -34,7 +39,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
       try {
         const playerDataPromises = topPlayers.map(async (topPlayer) => {
           const response = await axios.get(
-            `http://localhost:user-service/${topPlayer.id}`,
+            `http://localhost:${AUTH_USER_PORT}/api/user/${topPlayer.id}`,
           );
           const { id, avatar, name } = response.data;
           return { id, avatar, name, score: topPlayer.score };

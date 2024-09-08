@@ -43,6 +43,10 @@ const router = createBrowserRouter([
         element: <EventList />,
       },
       {
+        path: "/favorites",
+        element: <EventList />,
+      },
+      {
         path: "/voucher",
         element: <VoucherList />,
       },
