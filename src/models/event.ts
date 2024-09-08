@@ -1,20 +1,16 @@
-import Voucher from './voucher';
+import Voucher from "./voucher";
 
 interface Event {
-    id: string;
-    name: string;
-    brand: string;
-    description: string;
-    imgUrl: string;
-    game: string;
-    status: string;
-    startDate: Date;
-    endDate: Date;
-    vouchers: {
-        voucher: Voucher;
-        quantity: number;
-        available: number;
-    }[];
+  eventId: string;
+  eventName: string;
+  brandName: string;
+  description: string;
+  imgUrl: string;
+  gameType: string;
+  startDt: Date;
+  endDt: Date;
+  status: string;
+  vouchers: Voucher[];
 }
 
 export default Event;
