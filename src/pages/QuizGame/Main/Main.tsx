@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+// import { auth } from "@/config/firebaseConfig";
+import axios from "axios";
 
 import defaultAvatar from "@/assets/avatar.png";
 import { SlackParticles, SnowParticles } from "@/components/ui/particles";
@@ -15,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-import { useSocket } from "@/contexts/SocketContext";
+import { io } from "socket.io-client";
 
 import Leaderboard from "./Leaderboard";
 import Stats from "./Stats";
@@ -33,19 +35,20 @@ function getPlaceSuffix(place: number) {
   }
 }
 
-const player = {
-  playerId: "123",
-  name: "John Doe",
-  gameData: {
-    score: 1000,
-  },
-  avatar: "",
-};
+interface User {
+  username: string;
+  avatar: string;
+}
 
 const eventId = "66b70aa8f9d6d14160e0d2dd";
 
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+const QUIZ_GAME_PORT = import.meta.env.VITE_QUIZ_GAME_PORT;
+
 const QuizGameMain: React.FC = () => {
-  const socket = useSocket();
+  const socket = io(`http://localhost:${QUIZ_GAME_PORT}`);
+  // const user = auth.currentUser;
+  const [userInfo, setUserInfo] = useState<User>();
   const [playerAnswered, setPlayerAnswered] = useState(-1);
   const [correct, setCorrect] = useState(false);
   const [score, setScore] = useState(0);
@@ -74,10 +77,33 @@ const QuizGameMain: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (!socket) return;
+    const fetchUserData = async () => {
+      // if (user) {
+      //   try {
+      //     const response = await axios.get(
+      //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+      //     );
+      //     const userData = response.data;
+      //     setUserInfo({ username: userData.username, avatar: userData.avatar });
+      //   } catch (err) {
+      //     console.log("Failed to fetch user data");
+      //   }
+      // }
+    };
+
+    fetchUserData();
+    const score = localStorage.getItem("score");
+    const rank = localStorage.getItem("rank");
+    setScore(score ? parseInt(score) : 0);
+    setRank(rank ? parseInt(rank) : 0);
+  }, []);
+
+  useEffect(() => {
+    const user = { uid: "1", username: "Player One", avatar: "" };
+    if (!socket || !user) return;
 
     socket.emit("player-join-game", {
-      userId: player.playerId,
+      userId: user.uid,
       eventId,
     });
 
@@ -262,13 +288,6 @@ const QuizGameMain: React.FC = () => {
     }
   }, [playerAnswered]);
 
-  useEffect(() => {
-    const score = localStorage.getItem("score");
-    const rank = localStorage.getItem("rank");
-    setScore(score ? parseInt(score) : 0);
-    setRank(rank ? parseInt(rank) : 0);
-  }, []);
-
   const setButtonVisibility = (visible: boolean) => {
     const visibility = visible ? "visible" : "hidden";
     for (let i = 0; i < 4; i++) {
@@ -380,11 +399,11 @@ const QuizGameMain: React.FC = () => {
       <div className="border-t-2 border-slate-400 bg-white flex justify-between items-center p-4 z-10 w-full fixed -bottom-1">
         <div className="flex items-center gap-2">
           <img
-            src={player.avatar ? player.avatar : defaultAvatar}
+            src={userInfo?.avatar ? userInfo?.avatar : defaultAvatar}
             alt="User Avatar"
             className="h-10 w-10 rounded-full"
           />
-          <span className="mr-2">{player.name}</span>
+          <span className="mr-2">{userInfo?.username}</span>
         </div>
         <div id="scoreText" className="p-2 bg-slate-700 text-white rounded-md">
           {score} | {rank}

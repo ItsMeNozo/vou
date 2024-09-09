@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { GoArrowUp, GoArrowDown } from 'react-icons/go';
-import { useNavigate  } from "react-router-dom";
-import './VoucherList.css';
+import React, { useState } from "react";
+import { GoArrowUp, GoArrowDown } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
+import "./VoucherList.css";
 
 const vouchers = [
   // description, condition, voucherCode, qrCode, expiryDate, status
@@ -48,13 +48,13 @@ const vouchers = [
 ];
 
 const VoucherList: React.FC = () => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
   const [selectedOrder, setSelectedOrder] = useState("Newest");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const handleSelectVoucher = () => {
-		navigate("/voucher-details");
-	}
+    navigate("/voucher-details");
+  };
 
   const handleSelectGame = (buttonName: string) => {
     if (selectedOrder === buttonName) {

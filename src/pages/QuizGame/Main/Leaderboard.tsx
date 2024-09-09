@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import defaultAvatar from "@/assets/avatar.png";
 import axios from "axios";
-import dotenv from "dotenv";
 
-dotenv.config();
+import defaultAvatar from "@/assets/avatar.png";
 
-const AUTH_USER_PORT = process.env.AUTH_USER_PORT || 3001;
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
 
 interface Player {
   id: string;
@@ -23,13 +21,13 @@ interface LeaderboardProps {
   topPlayers: TopPlayer[];
 }
 
-const mockPlayers: Player[] = [
-  { id: "1", avatar: "", name: "Player One", score: 100 },
-  { id: "2", avatar: "", name: "Player Two", score: 90 },
-  { id: "3", avatar: "", name: "Player Three", score: 80 },
-  { id: "4", avatar: "", name: "Player Four", score: 70 },
-  { id: "5", avatar: "", name: "Player Five", score: 60 },
-];
+// const mockPlayers: Player[] = [
+//   { id: "1", avatar: "", name: "Player One", score: 100 },
+//   { id: "2", avatar: "", name: "Player Two", score: 90 },
+//   { id: "3", avatar: "", name: "Player Three", score: 80 },
+//   { id: "4", avatar: "", name: "Player Four", score: 70 },
+//   { id: "5", avatar: "", name: "Player Five", score: 60 },
+// ];
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -50,8 +48,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
         console.error("Error fetching players:", error);
       }
     };
-    // fetchPlayers();
-    setPlayers(mockPlayers);
+    fetchPlayers();
+    // setPlayers(mockPlayers);
   }, [topPlayers]);
 
   return (

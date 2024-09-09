@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import dotenv from "dotenv";
+// import { auth } from "@/config/firebaseConfig";
 
 import Event from "@/models/event";
 import logo from "@/assets/logo.png";
@@ -10,21 +10,19 @@ import { Input } from "@/components/ui/input";
 
 import "./EventList.css";
 
-dotenv.config();
-
-const EVENT_VOUCHER_PORT = process.env.EVENT_VOUCHER_PORT || 8888;
-const AUTH_USER_PORT = process.env.AUTH_USER_PORT || 8889;
-
-function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+interface User {
+  username: string;
+  avatar: string;
 }
 
-const username = "John Doe";
-const avatar = "";
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT;
 
 const EventList: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  // const user = auth.currentUser;
+  const [userInfo, setUserInfo] = useState<User>();
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedGame, setSelectedGame] = useState("All");
   const [selectedTimeFrames, setSelectedTimeFrames] = useState<{
@@ -65,7 +63,7 @@ const EventList: React.FC = () => {
   const handleSearch = async (query: string) => {
     try {
       const response = await axios.get(
-        `http://localhost:${EVENT_VOUCHER_PORT}/event/search?input=${query}`,
+        `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/search?input=${query}`,
       );
       setEvents(response.data);
     } catch (err) {
@@ -86,15 +84,15 @@ const EventList: React.FC = () => {
     const fetchNumberOfEvents = async () => {
       try {
         let response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/count`,
+          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/count`,
         );
         setTotalEvents(response.data.count);
         response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/count?game=quiz`,
+          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/count?game-type=quiz`,
         );
         setTotalQuizGames(response.data.count);
         response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/count?game=shaking`,
+          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/count?game-type=shaking`,
         );
         setTotalShakingGames(response.data.count);
       } catch (err) {
@@ -105,7 +103,7 @@ const EventList: React.FC = () => {
     const fetchQuizGameTimes = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/event-times-today`,
+          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/event-times-today`,
         );
         const now = new Date();
 
@@ -131,45 +129,49 @@ const EventList: React.FC = () => {
     };
 
     const fetchFavoriteEvents = async () => {
-      const userId = "123";
-      try {
-        const response = await axios.get(
-          `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
-        );
-        const user = response.data;
-        const favorites = user.favorites;
-        const eventPromises = favorites.map((eventId: string) =>
-          axios.get(`http://localhost:${EVENT_VOUCHER_PORT}/event/${eventId}`),
-        );
-        const eventResponses = await Promise.all(eventPromises);
-        const eventDetails = eventResponses.map((response) => response.data);
+      // if (user) {
+      //   try {
+      //     const response = await axios.get(
+      //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+      //     );
+      //     const userData = response.data;
+      //     setUserInfo({ username: userData.username, avatar: userData.avatar });
+      //     const favorites = userData.favorites;
+      //     const eventPromises = favorites.map((eventId: string) =>
+      //       axios.get(
+      //         `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/${eventId}`,
+      //       ),
+      //     );
+      //     const eventResponses = await Promise.all(eventPromises);
+      //     const eventDetails = eventResponses.map((response) => response.data);
 
-        const eventCounts = eventDetails.reduce(
-          (counts, event) => {
-            counts.total += 1;
-            if (event.gameType === "quiz") {
-              counts.quiz += 1;
-            } else if (event.gameType === "shaking") {
-              counts.shaking += 1;
-            }
-            return counts;
-          },
-          { total: 0, quiz: 0, shaking: 0 },
-        );
+      //     const eventCounts = eventDetails.reduce(
+      //       (counts, event) => {
+      //         counts.total += 1;
+      //         if (event.gameType === "quiz") {
+      //           counts.quiz += 1;
+      //         } else if (event.gameType === "shaking") {
+      //           counts.shaking += 1;
+      //         }
+      //         return counts;
+      //       },
+      //       { total: 0, quiz: 0, shaking: 0 },
+      //     );
 
-        setTotalEvents(eventCounts.total);
-        setTotalQuizGames(eventCounts.quiz);
-        setTotalShakingGames(eventCounts.shaking);
-        setEvents(eventDetails);
-      } catch (err) {
-        console.log("Failed to fetch favorite events");
-      }
+      //     setTotalEvents(eventCounts.total);
+      //     setTotalQuizGames(eventCounts.quiz);
+      //     setTotalShakingGames(eventCounts.shaking);
+      //     setEvents(eventDetails);
+      //   } catch (err) {
+      //     console.log("Failed to fetch favorite events");
+      //   }
+      // }
     };
 
     if (location.pathname === "/favorites") {
       fetchFavoriteEvents();
     } else {
-      fetchEvents(`http://localhost:${EVENT_VOUCHER_PORT}/event/`);
+      fetchEvents(`http://localhost:${EVENT_VOUCHER_PORT}/sale-events/`);
       fetchNumberOfEvents();
     }
     fetchQuizGameTimes();
@@ -177,7 +179,7 @@ const EventList: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    let url = `http://localhost:${EVENT_VOUCHER_PORT}/event/`;
+    let url = `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/`;
 
     if (
       selectedGame !== "All" ||
@@ -186,7 +188,7 @@ const EventList: React.FC = () => {
     ) {
       if (selectedGame !== "All") {
         const game = selectedGame === "Shaking game" ? "shaking" : "quiz";
-        params.append("game", game);
+        params.append("game-type", game);
       }
       if (
         selectedTimeFrames[selectedGame] == "happening" ||
@@ -209,7 +211,7 @@ const EventList: React.FC = () => {
         }
       }
 
-      url = `http://localhost:${EVENT_VOUCHER_PORT}/event/filter?${params.toString()}`;
+      url = `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/filter?${params.toString()}`;
     }
     if (location.pathname === "/favorites") {
       setEvents(
@@ -237,9 +239,9 @@ const EventList: React.FC = () => {
             <img src={logo} alt="Logo" className="h-12" />
           </div>
           <div className="flex items-center" onClick={handleAvatarClick}>
-            <span className="mr-2">{username}</span>
+            <span className="mr-2">{userInfo?.username}</span>
             <img
-              src={avatar ? avatar : defaultAvatar}
+              src={userInfo?.avatar ? userInfo?.avatar : defaultAvatar}
               alt="User Avatar"
               className="h-10 w-10 rounded-full"
             />
@@ -365,18 +367,18 @@ const EventList: React.FC = () => {
                           event.status == "upcoming"
                             ? "bg-yellow-400"
                             : "bg-green-400"
-                        } p-1 rounded-md`}
+                        } p-1 rounded-md capitalize`}
                       >
-                        {capitalizeFirstLetter(event.status)}
+                        {event.status}
                       </div>
                     </div>
                   </div>
                   <div
                     className={`text-white ${
                       event.gameType == "quiz" ? "bg-blue-500" : "bg-orange-400"
-                    } p-1 rounded-md text-sm absolute -top-0.5 -left-0.5`}
+                    } p-1 rounded-md text-sm absolute -top-0.5 -left-0.5 capitalize`}
                   >
-                    {capitalizeFirstLetter(event.gameType)}
+                    {event.gameType}
                   </div>
                 </div>
               </Link>

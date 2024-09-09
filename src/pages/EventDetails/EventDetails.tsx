@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Progress } from "@/components/ui/progress";
 import axios from "axios";
-import dotenv from "dotenv";
+// import { auth } from "@/config/firebaseConfig";
+
+import { Progress } from "@/components/ui/progress";
 import Event from "@/models/event";
 import "./EventDetails.css";
 
-dotenv.config();
-
-const EVENT_VOUCHER_PORT = process.env.EVENT_VOUCHER_PORT || 8888;
-const AUTH_USER_PORT = process.env.AUTH_USER_PORT || 8889;
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT;
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -17,6 +16,7 @@ function capitalizeFirstLetter(str: string) {
 
 const EventDetails: React.FC = () => {
   const { eventId } = useParams();
+  // const user = auth.currentUser;
   const [event, setEvent] = useState<Event>();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -24,7 +24,7 @@ const EventDetails: React.FC = () => {
     const fetchEvent = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/${eventId}`,
+          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/${eventId}`,
         );
         setEvent(response.data);
       } catch (err) {
@@ -33,19 +33,20 @@ const EventDetails: React.FC = () => {
     };
 
     const fetchUser = async () => {
-      const userId = "123";
-      try {
-        const response = await axios.get(
-          `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
-        );
-        const user = response.data;
-        const favorites = user.favorites;
-        if (favorites.includes(eventId)) {
-          setIsFavorite(true);
-        }
-      } catch (err) {
-        console.log("Failed to check favorite status");
-      }
+      // if (user) {
+      //   try {
+      //     const response = await axios.get(
+      //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+      //     );
+      //     const userData = response.data;
+      //     const favorites = userData.favorites;
+      //     if (favorites.includes(eventId)) {
+      //       setIsFavorite(true);
+      //     }
+      //   } catch (err) {
+      //     console.log("Failed to check favorite status");
+      //   }
+      // }
     };
 
     fetchEvent();
@@ -53,30 +54,31 @@ const EventDetails: React.FC = () => {
   }, []);
 
   const handleFavorite = async () => {
-    const userId = "123";
-    try {
-      const response = await axios.get(
-        `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
-      );
-      const user = response.data;
-      const favorites = user.favorites;
-      const updatedUser = { ...user };
-      if (isFavorite) {
-        updatedUser.favorites = favorites.filter(
-          (favId: string) => favId !== eventId,
-        );
-        setIsFavorite(false);
-      } else {
-        updatedUser.favorites.push(eventId);
-        setIsFavorite(true);
-      }
-      await axios.put(
-        `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
-        updatedUser,
-      );
-    } catch (err) {
-      console.log("Failed to update favorite status");
-    }
+    // if (user) {
+    //   try {
+    //     const response = await axios.get(
+    //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+    //     );
+    //     const userData = response.data;
+    //     const favorites = userData.favorites;
+    //     const updatedUser = { ...userData };
+    //     if (isFavorite) {
+    //       updatedUser.favorites = favorites.filter(
+    //         (favId: string) => favId !== eventId,
+    //       );
+    //       setIsFavorite(false);
+    //     } else {
+    //       updatedUser.favorites.push(eventId);
+    //       setIsFavorite(true);
+    //     }
+    //     await axios.put(
+    //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+    //       updatedUser,
+    //     );
+    //   } catch (err) {
+    //     console.log("Failed to update favorite status");
+    //   }
+    // }
   };
 
   return (
