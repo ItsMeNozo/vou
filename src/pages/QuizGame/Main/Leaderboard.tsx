@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import defaultAvatar from "@/assets/avatar.png";
 import axios from "axios";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const AUTH_USER_PORT = process.env.AUTH_USER_PORT || 3001;
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT || 3001;
 
 interface Player {
   id: string;

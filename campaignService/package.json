@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@types/cors": "^2.8.17",
+    "campainService": "file:",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "mongoose": "^8.5.2"

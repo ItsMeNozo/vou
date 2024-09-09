@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import dotenv from "dotenv";
 
 import Event from "@/models/event";
 import logo from "@/assets/logo.png";
@@ -10,10 +9,8 @@ import { Input } from "@/components/ui/input";
 
 import "./EventList.css";
 
-dotenv.config();
-
-const EVENT_VOUCHER_PORT = process.env.EVENT_VOUCHER_PORT || 8888;
-const AUTH_USER_PORT = process.env.AUTH_USER_PORT || 8889;
+const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT || 8888;
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT || 8889;
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
