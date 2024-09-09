@@ -29,6 +29,7 @@
     "@types/babel__generator": "^7.6.8",
     "@types/node-cron": "^3.0.11",
     "@types/react-lottie": "^1.2.10",
+    "antd": "^5.20.5",
     "axios": "^1.7.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

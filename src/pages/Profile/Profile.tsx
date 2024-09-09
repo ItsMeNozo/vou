@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import User from "@/types/User";
-import avatarImg from "@/assets/avatar.png"
+import avatarImg from "@/assets/avatar.png";
 import { useNavigate } from "react-router-dom";
+import { handleSignOut } from "@/utils/authUtils";
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const Profile: React.FC = () => {
     fullName: "John Doe",
     password: "",
     email: "johndoe@example.com",
-    phone: "+1234567890"
+    phone: "+1234567890",
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -19,7 +20,7 @@ const Profile: React.FC = () => {
     const { name, value } = e.target;
     setUser((prevUser) => ({
       ...prevUser,
-      [name]: value
+      [name]: value,
     }));
     setIsEditing(true);
   };
@@ -27,12 +28,6 @@ const Profile: React.FC = () => {
   const handleSave = () => {
     console.log("User details saved:", user);
     setIsEditing(false);
-  };
-
-  const handleLogout = () => {
-    console.log("User logged out");
-    navigate("/login")
-    // Add logout logic here
   };
 
   return (
@@ -95,7 +90,7 @@ const Profile: React.FC = () => {
       {/* Logout Button */}
       <div className="mt-8">
         <button
-          onClick={handleLogout}
+          onClick={() => handleSignOut(navigate)}
           className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
         >
           Logout
