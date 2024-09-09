@@ -86,7 +86,7 @@ const router = createBrowserRouter([
     path: "quiz-game",
     children: [
       {
-        path: "main/:id",
+        path: "main/:eventId",
         element: <QuizGameMain />,
       },
     ],

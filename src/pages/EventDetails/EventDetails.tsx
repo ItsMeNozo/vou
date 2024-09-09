@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-// import { auth } from "@/config/firebaseConfig";
+import { auth } from "@/config/firebaseConfig";
 
 import { Progress } from "@/components/ui/progress";
 import Event from "@/models/event";
@@ -16,7 +16,7 @@ function capitalizeFirstLetter(str: string) {
 
 const EventDetails: React.FC = () => {
   const { eventId } = useParams();
-  // const user = auth.currentUser;
+  const user = auth.currentUser;
   const [event, setEvent] = useState<Event>();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -33,20 +33,20 @@ const EventDetails: React.FC = () => {
     };
 
     const fetchUser = async () => {
-      // if (user) {
-      //   try {
-      //     const response = await axios.get(
-      //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
-      //     );
-      //     const userData = response.data;
-      //     const favorites = userData.favorites;
-      //     if (favorites.includes(eventId)) {
-      //       setIsFavorite(true);
-      //     }
-      //   } catch (err) {
-      //     console.log("Failed to check favorite status");
-      //   }
-      // }
+      if (user) {
+        try {
+          const response = await axios.get(
+            `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+          );
+          const userData = response.data;
+          const favorites = userData.favorites;
+          if (favorites.includes(eventId)) {
+            setIsFavorite(true);
+          }
+        } catch (err) {
+          console.log("Failed to check favorite status");
+        }
+      }
     };
 
     fetchEvent();
@@ -54,31 +54,31 @@ const EventDetails: React.FC = () => {
   }, []);
 
   const handleFavorite = async () => {
-    // if (user) {
-    //   try {
-    //     const response = await axios.get(
-    //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
-    //     );
-    //     const userData = response.data;
-    //     const favorites = userData.favorites;
-    //     const updatedUser = { ...userData };
-    //     if (isFavorite) {
-    //       updatedUser.favorites = favorites.filter(
-    //         (favId: string) => favId !== eventId,
-    //       );
-    //       setIsFavorite(false);
-    //     } else {
-    //       updatedUser.favorites.push(eventId);
-    //       setIsFavorite(true);
-    //     }
-    //     await axios.put(
-    //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
-    //       updatedUser,
-    //     );
-    //   } catch (err) {
-    //     console.log("Failed to update favorite status");
-    //   }
-    // }
+    if (user) {
+      try {
+        const response = await axios.get(
+          `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+        );
+        const userData = response.data;
+        const favorites = userData.favorites;
+        const updatedUser = { ...userData };
+        if (isFavorite) {
+          updatedUser.favorites = favorites.filter(
+            (favId: string) => favId !== eventId,
+          );
+          setIsFavorite(false);
+        } else {
+          updatedUser.favorites.push(eventId);
+          setIsFavorite(true);
+        }
+        await axios.put(
+          `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+          updatedUser,
+        );
+      } catch (err) {
+        console.log("Failed to update favorite status");
+      }
+    }
   };
 
   return (

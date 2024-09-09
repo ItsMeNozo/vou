@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-// import { auth } from "@/config/firebaseConfig";
+import { useParams } from "react-router-dom";
+import { auth } from "@/config/firebaseConfig";
 import axios from "axios";
 
 import defaultAvatar from "@/assets/avatar.png";
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-import { io } from "socket.io-client";
+import { useSocket } from "@/contexts/SocketContext";
 
 import Leaderboard from "./Leaderboard";
 import Stats from "./Stats";
@@ -40,14 +41,12 @@ interface User {
   avatar: string;
 }
 
-const eventId = "66b70aa8f9d6d14160e0d2dd";
-
 const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
-const QUIZ_GAME_PORT = import.meta.env.VITE_QUIZ_GAME_PORT;
 
 const QuizGameMain: React.FC = () => {
-  const socket = io(`http://localhost:${QUIZ_GAME_PORT}`);
-  // const user = auth.currentUser;
+  const { eventId } = useParams();
+  const socket = useSocket();
+  const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState<User>();
   const [playerAnswered, setPlayerAnswered] = useState(-1);
   const [correct, setCorrect] = useState(false);
@@ -78,17 +77,17 @@ const QuizGameMain: React.FC = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      // if (user) {
-      //   try {
-      //     const response = await axios.get(
-      //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
-      //     );
-      //     const userData = response.data;
-      //     setUserInfo({ username: userData.username, avatar: userData.avatar });
-      //   } catch (err) {
-      //     console.log("Failed to fetch user data");
-      //   }
-      // }
+      if (user) {
+        try {
+          const response = await axios.get(
+            `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+          );
+          const userData = response.data;
+          setUserInfo({ username: userData.username, avatar: userData.avatar });
+        } catch (err) {
+          console.log("Failed to fetch user data");
+        }
+      }
     };
 
     fetchUserData();

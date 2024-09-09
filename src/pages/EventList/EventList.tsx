@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-// import { auth } from "@/config/firebaseConfig";
+import { auth } from "@/config/firebaseConfig";
 
 import Event from "@/models/event";
 import logo from "@/assets/logo.png";
@@ -21,7 +21,7 @@ const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT;
 const EventList: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // const user = auth.currentUser;
+  const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState<User>();
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedGame, setSelectedGame] = useState("All");
@@ -129,43 +129,43 @@ const EventList: React.FC = () => {
     };
 
     const fetchFavoriteEvents = async () => {
-      // if (user) {
-      //   try {
-      //     const response = await axios.get(
-      //       `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
-      //     );
-      //     const userData = response.data;
-      //     setUserInfo({ username: userData.username, avatar: userData.avatar });
-      //     const favorites = userData.favorites;
-      //     const eventPromises = favorites.map((eventId: string) =>
-      //       axios.get(
-      //         `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/${eventId}`,
-      //       ),
-      //     );
-      //     const eventResponses = await Promise.all(eventPromises);
-      //     const eventDetails = eventResponses.map((response) => response.data);
+      if (user) {
+        try {
+          const response = await axios.get(
+            `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+          );
+          const userData = response.data;
+          setUserInfo({ username: userData.username, avatar: userData.avatar });
+          const favorites = userData.favorites;
+          const eventPromises = favorites.map((eventId: string) =>
+            axios.get(
+              `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/${eventId}`,
+            ),
+          );
+          const eventResponses = await Promise.all(eventPromises);
+          const eventDetails = eventResponses.map((response) => response.data);
 
-      //     const eventCounts = eventDetails.reduce(
-      //       (counts, event) => {
-      //         counts.total += 1;
-      //         if (event.gameType === "quiz") {
-      //           counts.quiz += 1;
-      //         } else if (event.gameType === "shaking") {
-      //           counts.shaking += 1;
-      //         }
-      //         return counts;
-      //       },
-      //       { total: 0, quiz: 0, shaking: 0 },
-      //     );
+          const eventCounts = eventDetails.reduce(
+            (counts, event) => {
+              counts.total += 1;
+              if (event.gameType === "quiz") {
+                counts.quiz += 1;
+              } else if (event.gameType === "shaking") {
+                counts.shaking += 1;
+              }
+              return counts;
+            },
+            { total: 0, quiz: 0, shaking: 0 },
+          );
 
-      //     setTotalEvents(eventCounts.total);
-      //     setTotalQuizGames(eventCounts.quiz);
-      //     setTotalShakingGames(eventCounts.shaking);
-      //     setEvents(eventDetails);
-      //   } catch (err) {
-      //     console.log("Failed to fetch favorite events");
-      //   }
-      // }
+          setTotalEvents(eventCounts.total);
+          setTotalQuizGames(eventCounts.quiz);
+          setTotalShakingGames(eventCounts.shaking);
+          setEvents(eventDetails);
+        } catch (err) {
+          console.log("Failed to fetch favorite events");
+        }
+      }
     };
 
     if (location.pathname === "/favorites") {
