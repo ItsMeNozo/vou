@@ -18,7 +18,7 @@ if (!API_GATEWAY_URL) {
 
 
 function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str?.charAt(0).toUpperCase() + str?.slice(1);
 }
 
 const username = "John Doe";

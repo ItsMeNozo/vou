@@ -63,7 +63,7 @@ const router = createBrowserRouter([
         element: <NotificationList />
       },
       {
-        path: "/notification/:id",
+        path: "/notification/notifcation-details",
         element: <NotificationDetails />
       },
       {

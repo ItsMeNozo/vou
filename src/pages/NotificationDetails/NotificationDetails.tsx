@@ -1,23 +1,32 @@
 import { useParams } from "react-router-dom";
 import Notification from "@/types/Notification";
 import { formatDateFromNow } from "@/utils/DateUtils";
+import { useLocation, useNavigate } from "react-router-dom";
+import { MdArrowBackIos } from "react-icons/md";
 
-const notification: Notification = {
-  id: "1",
-  title: "Welcome to the Platform!",
-  content: "Thank you for joining our platform. We're excited to have you onboard.",
-  read: false,
-  createdAt: new Date("2024-08-01T09:00:00Z"),
-  updatedAt: new Date("2024-08-01T09:00:00Z")
-};
+
 
 const NotificationDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Access the passed voucher object from state
+  const { notification } = location.state || {};
+
+
+  if (!notification) {
+    return <div>No notification found</div>;
+  }
+
 
   return (
-    <div className="max-w-2xl mx-auto my-8 p-6 pt-0 bg-white rounded-lg shadow-lg">
-      <div className="sticky top-0 z-50 tex-left bg-white p-4 border-b border-gray-200">
-        <h1 className="text-3xl font-bold">Notification Details</h1>
+    <div className="max-w-2xl mx-auto p-3 pb-6 pt-0 bg-white rounded-lg shadow-lg">
+      <div className="sticky top-0 z-50 tex-left bg-white p-4 border-b border-gray-200 flex flex-row">
+        <div className=" flex flex-col justify-center items-center mr-2 "
+          onClick={() => navigate(-1)}
+        >
+          <MdArrowBackIos className="text-center" />
+        </div>
+        <h1 className="text-2xl font-bold">Notification Details</h1>
       </div>
 
       <div className="mt-6">

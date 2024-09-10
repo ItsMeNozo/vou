@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { MdArrowBackIos } from "react-icons/md";
 import QRCode from 'react-qr-code';
-import voucherImgUrl from '@/assets/500k.png';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Voucher, { VoucherStatus, RedeemMethod } from "@/types/Voucher";
-import { useLocation } from "react-router-dom";
 
 
 interface VoucherDetailsProps {
@@ -12,7 +10,7 @@ interface VoucherDetailsProps {
 
 const VoucherDetails: React.FC<VoucherDetailsProps> = () => {
   const location = useLocation();
-  console.log(location.state); // Add this to check what's being passed
+  // console.log(location.state); // Add this to check what's being passed
 
   // Access the passed voucher object from state
   const { voucherDetails, saleEvent } = location.state || {};
