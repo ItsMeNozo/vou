@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import Notification from '@/types/Notification';
 import { formatDateFromNow } from '@/utils/DateUtils';
 import { getNotificationsByUsernameAndType, markNotificationAsRead } from '@/api/apiService';
+import { getGatewayUrl } from '@/utils/UrlUtils';
+
+const SOCKET_SERVER_URL = getGatewayUrl(); // Replace with your WebSocket server URL
 
 const NotificationList: React.FC = () => {
   const navigate = useNavigate();
@@ -11,7 +15,7 @@ const NotificationList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const username = 'john_doe'; // Replace with actual username
 
-  // Fetch notifications
+  // Fetch initial notifications
   const fetchNotifications = async () => {
     try {
       const response = await getNotificationsByUsernameAndType(username);
@@ -25,19 +29,31 @@ const NotificationList: React.FC = () => {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+
+    // Set up WebSocket connection and listeners
+    const newSocket = io(SOCKET_SERVER_URL, {
+      path: '/noti-socket-server',
+    });
+
+    // Register the user with the server
+    newSocket.emit('register', username+'@vouFE');
+
+    // Listen for incoming notifications
+    newSocket.on('notification', (notification: Notification) => {
+      setNotifications((prevNotifications) => [notification, ...prevNotifications]);
+    });
+
+    // Cleanup when the component unmounts
+    return () => {
+      if (newSocket) newSocket.disconnect();
+    };
+  }, [username]);
 
   const handleSelectNotification = async (notification: Notification) => {
     try {
       if (!notification.read) {
         // Call API to mark as read
         await markNotificationAsRead(notification._id);
-        // Update local state to mark the notification as read without refetching
-        // setNotifications((prevNotifications) =>
-        //   prevNotifications.map((n) =>
-        //     n.id === notification.id ? { ...n, read: true } : n
-        //   )
-        // );
       }
       // Navigate to notification details page
       navigate(`/notification/notifcation-details`, { state: { notification } });
@@ -64,7 +80,7 @@ const NotificationList: React.FC = () => {
           <div
             key={index}
             className={`m-2 flex pr-2 border border-slate-300 relative rounded-sm cursor-pointer ${
-              notification.read ? 'bg-white' : 'bg-blue-50' // Style based on read status
+              notification.read ? 'bg-white' : 'bg-blue-50'
             }`}
             onClick={() => handleSelectNotification(notification)}
           >
@@ -78,7 +94,7 @@ const NotificationList: React.FC = () => {
                 </div>
               </div>
               <div className="text-slate-400 text-xs">
-                {formatDateFromNow(notification.createdAt)}
+                {formatDateFromNow(notification.created_at)}
               </div>
             </div>
           </div>

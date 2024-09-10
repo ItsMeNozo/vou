@@ -30,7 +30,7 @@ const NotificationDetails: React.FC = () => {
       </div>
 
       <div className="mt-6">
-        <p className="text-gray-400 text-sm">{formatDateFromNow(notification.createdAt)}</p>
+        <p className="text-gray-400 text-sm">{formatDateFromNow(notification.created_at)}</p>
         <h2 className="mt-4 text-2xl font-semibold">{notification.title}</h2>
         <p className="mt-4 text-lg text-gray-700">{notification.content}</p>
       </div>
