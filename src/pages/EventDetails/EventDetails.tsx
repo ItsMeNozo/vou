@@ -6,8 +6,10 @@ import Event from "@/models/event";
 import "./EventDetails.css";
 import { useNavigate } from "react-router-dom";
 
+const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT || 8888;
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT || 8889;
 // Access the API Gateway URL from environment variables
-const API_GATEWAY_URL  = import.meta.env.VITE_API_GATEWAY_URL;
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
 if (!API_GATEWAY_URL) {
   throw new Error("API_GATEWAY_URL is not defined in environment variables");
@@ -59,9 +61,7 @@ const EventDetails: React.FC = () => {
   const handleFavorite = async () => {
     const userId = "123";
     try {
-      const response = await axios.get(
-        `${API_GATEWAY_URL}/api/user/${userId}`,
-      );
+      const response = await axios.get(`${API_GATEWAY_URL}/api/user/${userId}`);
       const user = response.data;
       const favorites = user.favorites;
       const updatedUser = { ...user };
@@ -74,10 +74,7 @@ const EventDetails: React.FC = () => {
         updatedUser.favorites.push(eventId);
         setIsFavorite(true);
       }
-      await axios.put(
-        `${API_GATEWAY_URL}/api/user/${userId}`,
-        updatedUser,
-      );
+      await axios.put(`${API_GATEWAY_URL}/api/user/${userId}`, updatedUser);
     } catch (err) {
       console.log("Failed to update favorite status");
     }

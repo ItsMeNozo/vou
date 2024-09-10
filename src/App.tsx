@@ -5,20 +5,15 @@ import Navbar from "./components/Navbar.tsx";
 import "./App.css";
 import MainScreen from "./pages/ShakingGame/MainScreen.tsx";
 import EventDetails from "./pages/EventDetails/EventDetails.tsx";
-// import QuizGameLanding from "./pages/QuizGame/Landing/Landing.tsx";
-// import QuizGameCreate from "./pages/QuizGame/Create/Create.tsx";
-// import QuizGameQuizCreator from "./pages/QuizGame/QuizCreator/QuizCreator.tsx";
-// import QuizGameHost from "./pages/QuizGame/Host/Host.tsx";
-// import QuizGameHostGameView from "./pages/QuizGame/HostGameView/HostGameView.tsx";
-// import QuizGameLobby from "./pages/QuizGame/Lobby/Lobby.tsx";
-// import QuizGamePlayerGameView from "./pages/QuizGame/PlayerGameView/PlayerGameView.tsx";
-// import QuizGameMain from "./pages/QuizGame/Main/Main.tsx";
 import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
 import NotificationList from "./pages/NotificationList/NotificationList.tsx";
 import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
 import Profile from "./pages/Profile/Profile.tsx";
-import Login from "./pages/Login/Login.tsx";
 import Signup from "./pages/Signup/Signup.tsx";
+import AuthLayout from "./layouts/AuthLayout.tsx";
+import LoginPage from "./pages/Login.tsx";
+import VerificationSuccess from "./pages/VerificationSuccess.tsx";
+import PrivateRoute from "./components/PrivateRoute.tsx";
 
 const Layout = () => {
   return (
@@ -31,8 +26,26 @@ const Layout = () => {
 
 const router = createBrowserRouter([
   {
+    path: "/verification-success",
+    element: <VerificationSuccess />,
+  },
+  {
+    path: "/login",
+    element: <AuthLayout />,
+    children: [
+      {
+        path: "",
+        element: <LoginPage />,
+      },
+    ],
+  },
+  {
     path: "/",
-    element: <Layout />,
+    element: (
+      <PrivateRoute>
+        <Layout />
+      </PrivateRoute>
+    ),
     children: [
       {
         path: "/",
@@ -56,28 +69,24 @@ const router = createBrowserRouter([
       },
       {
         path: "/voucher-details",
-        element: <VoucherDetails />
+        element: <VoucherDetails />,
       },
       {
         path: "/notification",
-        element: <NotificationList />
+        element: <NotificationList />,
       },
       {
-        path: "/notification/notifcation-details",
-        element: <NotificationDetails />
+        path: "/notification/:id",
+        element: <NotificationDetails />,
       },
       {
         path: "/profile",
-        element: <Profile />
-      },
-      {
-        path: "/login",
-        element: <Login />
+        element: <Profile />,
       },
       {
         path: "/signup",
-        element: <Signup />
-      }
+        element: <Signup />,
+      },
     ],
   },
   {

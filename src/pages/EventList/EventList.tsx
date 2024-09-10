@@ -10,12 +10,14 @@ import { Input } from "@/components/ui/input";
 import "./EventList.css";
 
 // Access the API Gateway URL from environment variables
-const API_GATEWAY_URL  = import.meta.env.VITE_API_GATEWAY_URL;
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
 if (!API_GATEWAY_URL) {
   throw new Error("API_GATEWAY_URL is not defined in environment variables");
 }
 
+const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT || 8888;
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT || 8889;
 
 function capitalizeFirstLetter(str: string) {
   return str?.charAt(0).toUpperCase() + str?.slice(1);
@@ -87,9 +89,7 @@ const EventList: React.FC = () => {
   useEffect(() => {
     const fetchNumberOfEvents = async () => {
       try {
-        let response = await axios.get(
-          `${API_GATEWAY_URL}/sale-events/count`,
-        );
+        let response = await axios.get(`${API_GATEWAY_URL}/sale-events/count`);
         setTotalEvents(response.data.count);
         response = await axios.get(
           `${API_GATEWAY_URL}/sale-events/count?game=quiz`,
