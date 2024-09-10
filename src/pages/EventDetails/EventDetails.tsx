@@ -2,20 +2,23 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import axios from "axios";
-import dotenv from "dotenv";
 import Event from "@/models/event";
 import "./EventDetails.css";
+import { useNavigate } from "react-router-dom";
 
-dotenv.config();
+// Access the API Gateway URL from environment variables
+const API_GATEWAY_URL  = import.meta.env.VITE_API_GATEWAY_URL;
 
-const EVENT_VOUCHER_PORT = process.env.EVENT_VOUCHER_PORT || 8888;
-const AUTH_USER_PORT = process.env.AUTH_USER_PORT || 8889;
+if (!API_GATEWAY_URL) {
+  throw new Error("API_GATEWAY_URL is not defined in environment variables");
+}
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 const EventDetails: React.FC = () => {
+  const navigate = useNavigate();
   const { eventId } = useParams();
   const [event, setEvent] = useState<Event>();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -24,9 +27,10 @@ const EventDetails: React.FC = () => {
     const fetchEvent = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/${eventId}`,
+          `${API_GATEWAY_URL}/sale-events/${eventId}`,
         );
         setEvent(response.data);
+        console.log("Event", response.data);
       } catch (err) {
         console.log("Failed to fetch events");
       }
@@ -36,7 +40,7 @@ const EventDetails: React.FC = () => {
       const userId = "123";
       try {
         const response = await axios.get(
-          `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
+          `${API_GATEWAY_URL}/api/user/${userId}`,
         );
         const user = response.data;
         const favorites = user.favorites;
@@ -56,7 +60,7 @@ const EventDetails: React.FC = () => {
     const userId = "123";
     try {
       const response = await axios.get(
-        `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
+        `${API_GATEWAY_URL}/api/user/${userId}`,
       );
       const user = response.data;
       const favorites = user.favorites;
@@ -71,12 +75,18 @@ const EventDetails: React.FC = () => {
         setIsFavorite(true);
       }
       await axios.put(
-        `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
+        `${API_GATEWAY_URL}/api/user/${userId}`,
         updatedUser,
       );
     } catch (err) {
       console.log("Failed to update favorite status");
     }
+  };
+
+  const handleSelectVoucher = (voucher: any) => {
+    navigate(`/voucher-details`, {
+      state: { voucherDetails: voucher, saleEvent: event },
+    });
   };
 
   return (
@@ -143,6 +153,7 @@ const EventDetails: React.FC = () => {
                 <div
                   key={index}
                   className="bg-white my-2 flex pr-2 border border-slate-300 relative rounded-sm"
+                  onClick={() => handleSelectVoucher(voucher)}
                 >
                   <div className="w-1/3 flex items-center border-r-2 border-slate-200 border-dashed relative">
                     <img

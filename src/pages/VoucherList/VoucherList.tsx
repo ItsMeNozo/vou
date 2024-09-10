@@ -3,6 +3,7 @@ import { GoArrowUp, GoArrowDown } from 'react-icons/go';
 import { useNavigate } from "react-router-dom";
 import { getVouchersOfUser } from "@/api/apiService"; // Import API service
 import './VoucherList.css';
+import { VoucherStatus } from '@/types/Voucher';
 
 const VoucherList: React.FC = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const VoucherList: React.FC = () => {
 
   const handleSelectVoucher = (voucher: any) => {
     navigate(`/voucher-details`, {
-      state: { voucherDetails: voucher }
+      state: { voucherDetails: voucher.voucher, saleEvent: voucher.voucher.saleEvent },
     });
   };
 
@@ -85,6 +86,23 @@ const VoucherList: React.FC = () => {
       return sortOrder === "asc" ? expiryA - expiryB : expiryB - expiryA;
     });
     setVouchers(sortedVouchers);
+  };
+
+  const getStatusStyle = (status: VoucherStatus) => {
+    switch (status) {
+      case VoucherStatus.ACTIVE:
+        return "bg-green-100 text-green-800";
+      case VoucherStatus.EXPIRED:
+        return "bg-red-100 text-red-800";
+      case VoucherStatus.REDEEMED:
+        return "bg-blue-100 text-blue-800";
+      case VoucherStatus.PENDING:
+        return "bg-yellow-100 text-yellow-800";
+      case VoucherStatus.CANCELLED:
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
 
   return (
@@ -144,6 +162,9 @@ const VoucherList: React.FC = () => {
                       {voucher.voucher.saleEvent.eventName}
                     </div>
                   </div>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(voucher.status)}`}>
+                    {voucher.status.toUpperCase()} {/* Capitalizes the first letter */}
+                  </span>
                   <div className="text-[#7d4af9] text-sm">
                     Expired:{" "}
                     {new Date(voucher.voucher.expiryDt).toLocaleDateString("en-GB", {

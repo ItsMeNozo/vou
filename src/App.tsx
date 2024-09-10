@@ -5,14 +5,14 @@ import Navbar from "./components/Navbar.tsx";
 import "./App.css";
 import MainScreen from "./pages/ShakingGame/MainScreen.tsx";
 import EventDetails from "./pages/EventDetails/EventDetails.tsx";
-import QuizGameLanding from "./pages/QuizGame/Landing/Landing.tsx";
-import QuizGameCreate from "./pages/QuizGame/Create/Create.tsx";
-import QuizGameQuizCreator from "./pages/QuizGame/QuizCreator/QuizCreator.tsx";
-import QuizGameHost from "./pages/QuizGame/Host/Host.tsx";
-import QuizGameHostGameView from "./pages/QuizGame/HostGameView/HostGameView.tsx";
-import QuizGameLobby from "./pages/QuizGame/Lobby/Lobby.tsx";
-import QuizGamePlayerGameView from "./pages/QuizGame/PlayerGameView/PlayerGameView.tsx";
-import QuizGameMain from "./pages/QuizGame/Main/Main.tsx";
+// import QuizGameLanding from "./pages/QuizGame/Landing/Landing.tsx";
+// import QuizGameCreate from "./pages/QuizGame/Create/Create.tsx";
+// import QuizGameQuizCreator from "./pages/QuizGame/QuizCreator/QuizCreator.tsx";
+// import QuizGameHost from "./pages/QuizGame/Host/Host.tsx";
+// import QuizGameHostGameView from "./pages/QuizGame/HostGameView/HostGameView.tsx";
+// import QuizGameLobby from "./pages/QuizGame/Lobby/Lobby.tsx";
+// import QuizGamePlayerGameView from "./pages/QuizGame/PlayerGameView/PlayerGameView.tsx";
+// import QuizGameMain from "./pages/QuizGame/Main/Main.tsx";
 import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
 import NotificationList from "./pages/NotificationList/NotificationList.tsx";
 import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
@@ -51,7 +51,7 @@ const router = createBrowserRouter([
         element: <VoucherList />,
       },
       {
-        path: "/event/:id",
+        path: "/sale-events/:eventId",
         element: <EventDetails />,
       },
       {
@@ -89,57 +89,57 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "quiz-game",
-    children: [
-      {
-        path: "",
-        element: <QuizGameLanding />,
-      },
-      {
-        path: "landing",
-        element: <QuizGameLanding />,
-      },
-      {
-        path: "create",
-        element: <QuizGameCreate />,
-      },
-      {
-        path: "quiz-creator",
-        element: <QuizGameQuizCreator />,
-      },
-      {
-        path: "host",
-        children: [
-          {
-            path: "",
-            element: <QuizGameHost />,
-          },
-          {
-            path: "game",
-            element: <QuizGameHostGameView />,
-          },
-        ],
-      },
-      {
-        path: "player",
-        children: [
-          {
-            path: "",
-            element: <QuizGameLobby />,
-          },
-          {
-            path: "game",
-            element: <QuizGamePlayerGameView />,
-          },
-        ],
-      },
-      {
-        path: "main/:id",
-        element: <QuizGameMain />,
-      },
-    ],
-  },
+  // {
+  //   path: "quiz-game",
+  //   children: [
+  //     {
+  //       path: "",
+  //       element: <QuizGameLanding />,
+  //     },
+  //     {
+  //       path: "landing",
+  //       element: <QuizGameLanding />,
+  //     },
+  //     {
+  //       path: "create",
+  //       element: <QuizGameCreate />,
+  //     },
+  //     {
+  //       path: "quiz-creator",
+  //       element: <QuizGameQuizCreator />,
+  //     },
+  //     {
+  //       path: "host",
+  //       children: [
+  //         {
+  //           path: "",
+  //           element: <QuizGameHost />,
+  //         },
+  //         {
+  //           path: "game",
+  //           element: <QuizGameHostGameView />,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       path: "player",
+  //       children: [
+  //         {
+  //           path: "",
+  //           element: <QuizGameLobby />,
+  //         },
+  //         {
+  //           path: "game",
+  //           element: <QuizGamePlayerGameView />,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       path: "main/:id",
+  //       element: <QuizGameMain />,
+  //     },
+  //   ],
+  // },
   {
     path: "*",
     element: <div>Page not found</div>,

@@ -15,7 +15,7 @@ const VoucherDetails: React.FC<VoucherDetailsProps> = () => {
   console.log(location.state); // Add this to check what's being passed
 
   // Access the passed voucher object from state
-  const { voucherDetails } = location.state || {};
+  const { voucherDetails, saleEvent } = location.state || {};
 
 
   if (!voucherDetails) {
@@ -39,56 +39,56 @@ const VoucherDetails: React.FC<VoucherDetailsProps> = () => {
       </div>
 
       <div className="w-full h-[300px] bg-white">
-        <img src={voucher.voucher.imgUrl} className="w-full h-full object-contain" />
+        <img src={voucher.imgUrl} className="w-full h-full object-contain" />
       </div>
 
       <div className="bg-white mt-2 mx-2 p-4 text-left rounded">
-        <p className="font-bold text-lg">{voucher.voucher.saleEvent.brandName}</p>
+        <p className="font-bold text-lg">{saleEvent.brandName}</p>
       </div>
 
       <div className=" h-[300px] flex flex-col justify-center items-center bg-white mt-2 mx-2 rounded">
         <div className="p-5 rounded-xl bg-white text-center border-4 border-black">
           <QRCode
-            value={voucher.voucher.qrCode}
+            value={voucher.qrCode}
             bgColor={'#FFFFFF'}
             fgColor={'#000000'}
             size={170}
           />
         </div>
         <div className="mt-3 font-bold">
-          QR code: {voucher.voucher.qrCode}
+          QR code: {voucher.qrCode}
         </div>
 
       </div>
       <div className="bg-white p-4 rounded max-w-md mx-2 mt-2">
         <div className="flex justify-between border-b py-2">
           <span className="font-semibold">Voucher Code:</span>
-          <span>{voucher.voucher.code}</span>
+          <span>{voucher.code}</span>
         </div>
         <div className="flex justify-between border-b py-2">
           <span className="font-semibold">Value:</span>
-          <span>{voucher.voucher.value}</span>
+          <span>{voucher.value}</span>
         </div>
         <div className="flex justify-between border-b py-2">
           <span className="font-semibold">Expiry Date:</span>
-          <span>{new Date(voucher.voucher.expiryDt).toLocaleDateString("en-GB", {
+          <span>{new Date(voucher.expiryDt).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
           })}</span>
         </div>
-        <div className="flex justify-between border-b py-2">
+        {/* <div className="flex justify-between border-b py-2">
           <span className="font-semibold">Status:</span>
           <span>{voucher.status}</span>
-        </div>
+        </div> */}
         <div className="flex justify-between py-2">
           <span className="font-semibold">Redeem Method:</span>
-          <span>{voucher.voucher.redeemMethod}</span>
+          <span>{voucher.redeemMethod}</span>
         </div>
       </div>
       <div className="bg-white mt-2 mx-2 p-4 text-left rounded">
         <p className="text-xl font-bold mb-2">Description</p>
-        <p className="text-sm">{voucher.voucher.description}</p>
+        <p className="text-sm">{voucher.description}</p>
       </div>
     </div>
   )
