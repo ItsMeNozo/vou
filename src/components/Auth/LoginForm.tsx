@@ -6,6 +6,8 @@ import axios from "axios";
 import { auth } from "@/config/firebaseConfig";
 import { signInWithCustomToken } from "firebase/auth"; // Import Firebase's signInWithCustomToken
 
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+
 const { Title } = Typography;
 
 const LoginForm: React.FC = () => {
@@ -22,7 +24,7 @@ const LoginForm: React.FC = () => {
     try {
       // Send a request to your backend for login and custom token generation
       const response = await axios.post(
-        "http://localhost:3001/api/auth/login",
+        `http://localhost:${AUTH_USER_PORT}/api/auth/login`,
         {
           email: values.email,
           password: values.password,

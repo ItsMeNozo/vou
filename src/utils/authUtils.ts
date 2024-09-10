@@ -3,6 +3,8 @@ import { auth } from "@/config/firebaseConfig"; // Firebase config
 import { signOut } from "firebase/auth"; // Firebase sign-out method
 import { NavigateFunction } from "react-router-dom"; // Import Navigate for redirect
 
+const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+
 export const handleSignOut = async (navigate: NavigateFunction) => {
   try {
     // Get the current user's ID token (access token)
@@ -14,7 +16,7 @@ export const handleSignOut = async (navigate: NavigateFunction) => {
     }
 
     // Send logout request to backend with the ID token in the body
-    await axios.post("http://localhost:3001/api/auth/logout", {
+    await axios.post(`http://localhost:${AUTH_USER_PORT}/api/auth/logout`, {
       token: idToken, // Send the token in the request body
     });
 
