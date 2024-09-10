@@ -64,7 +64,7 @@ const router = createBrowserRouter([
         element: <VoucherList />,
       },
       {
-        path: "/event/:id",
+        path: "/sale-events/:eventId",
         element: <EventDetails />,
       },
       {
@@ -98,6 +98,57 @@ const router = createBrowserRouter([
       },
     ],
   },
+  // {
+  //   path: "quiz-game",
+  //   children: [
+  //     {
+  //       path: "",
+  //       element: <QuizGameLanding />,
+  //     },
+  //     {
+  //       path: "landing",
+  //       element: <QuizGameLanding />,
+  //     },
+  //     {
+  //       path: "create",
+  //       element: <QuizGameCreate />,
+  //     },
+  //     {
+  //       path: "quiz-creator",
+  //       element: <QuizGameQuizCreator />,
+  //     },
+  //     {
+  //       path: "host",
+  //       children: [
+  //         {
+  //           path: "",
+  //           element: <QuizGameHost />,
+  //         },
+  //         {
+  //           path: "game",
+  //           element: <QuizGameHostGameView />,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       path: "player",
+  //       children: [
+  //         {
+  //           path: "",
+  //           element: <QuizGameLobby />,
+  //         },
+  //         {
+  //           path: "game",
+  //           element: <QuizGamePlayerGameView />,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       path: "main/:id",
+  //       element: <QuizGameMain />,
+  //     },
+  //   ],
+  // },
   {
     path: "*",
     element: <div>Page not found</div>,

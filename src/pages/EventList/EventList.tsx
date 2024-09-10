@@ -9,11 +9,18 @@ import { Input } from "@/components/ui/input";
 
 import "./EventList.css";
 
+// Access the API Gateway URL from environment variables
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
+
+if (!API_GATEWAY_URL) {
+  throw new Error("API_GATEWAY_URL is not defined in environment variables");
+}
+
 const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT || 8888;
 const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT || 8889;
 
 function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str?.charAt(0).toUpperCase() + str?.slice(1);
 }
 
 const username = "John Doe";
@@ -62,7 +69,7 @@ const EventList: React.FC = () => {
   const handleSearch = async (query: string) => {
     try {
       const response = await axios.get(
-        `http://localhost:${EVENT_VOUCHER_PORT}/event/search?input=${query}`,
+        `${API_GATEWAY_URL}/sale-events/search?input=${query}`,
       );
       setEvents(response.data);
     } catch (err) {
@@ -82,16 +89,14 @@ const EventList: React.FC = () => {
   useEffect(() => {
     const fetchNumberOfEvents = async () => {
       try {
-        let response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/count`,
-        );
+        let response = await axios.get(`${API_GATEWAY_URL}/sale-events/count`);
         setTotalEvents(response.data.count);
         response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/count?game=quiz`,
+          `${API_GATEWAY_URL}/sale-events/count?game=quiz`,
         );
         setTotalQuizGames(response.data.count);
         response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/count?game=shaking`,
+          `${API_GATEWAY_URL}/sale-events/count?game=shaking`,
         );
         setTotalShakingGames(response.data.count);
       } catch (err) {
@@ -102,7 +107,7 @@ const EventList: React.FC = () => {
     const fetchQuizGameTimes = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/event/event-times-today`,
+          `${API_GATEWAY_URL}/sale-events/event-times-today`,
         );
         const now = new Date();
 
@@ -131,12 +136,12 @@ const EventList: React.FC = () => {
       const userId = "123";
       try {
         const response = await axios.get(
-          `http://localhost:${AUTH_USER_PORT}/api/user/${userId}`,
+          `${API_GATEWAY_URL}/api/user/${userId}`,
         );
         const user = response.data;
         const favorites = user.favorites;
         const eventPromises = favorites.map((eventId: string) =>
-          axios.get(`http://localhost:${EVENT_VOUCHER_PORT}/event/${eventId}`),
+          axios.get(`${API_GATEWAY_URL}/sale-events/${eventId}`),
         );
         const eventResponses = await Promise.all(eventPromises);
         const eventDetails = eventResponses.map((response) => response.data);
@@ -166,7 +171,7 @@ const EventList: React.FC = () => {
     if (location.pathname === "/favorites") {
       fetchFavoriteEvents();
     } else {
-      fetchEvents(`http://localhost:${EVENT_VOUCHER_PORT}/event/`);
+      fetchEvents(`${API_GATEWAY_URL}/sale-events/`);
       fetchNumberOfEvents();
     }
     fetchQuizGameTimes();
@@ -174,7 +179,7 @@ const EventList: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    let url = `http://localhost:${EVENT_VOUCHER_PORT}/event/`;
+    let url = `${API_GATEWAY_URL}/sale-events/`;
 
     if (
       selectedGame !== "All" ||
@@ -206,7 +211,7 @@ const EventList: React.FC = () => {
         }
       }
 
-      url = `http://localhost:${EVENT_VOUCHER_PORT}/event/filter?${params.toString()}`;
+      url = `${API_GATEWAY_URL}/sale-events/filter?${params.toString()}`;
     }
     if (location.pathname === "/favorites") {
       setEvents(
@@ -324,7 +329,7 @@ const EventList: React.FC = () => {
         <div>
           {events &&
             events.map((event, index) => (
-              <Link to={`/event/${event.eventId}`} key={index}>
+              <Link to={`/sale-events/${event.eventId}`} key={index}>
                 <div className="flex m-2 p-2 border-b border-slate-300 relative">
                   <div className="w-1/3">
                     <div className="aspect-w-1 aspect-h-1">
