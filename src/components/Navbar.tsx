@@ -12,7 +12,7 @@ import { useNavigate  } from "react-router-dom";
 
 enum NavItem {
   Discover = "/discover",
-  Favorite = "/favorite",
+  Favorite = "/favorites",
   Voucher = "/voucher",
   Notification = "/notification",
 }

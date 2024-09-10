@@ -1,15 +1,16 @@
 interface Voucher {
-    id: string;
-    event: string;
-    name: string;
-    description: string;
-    imgUrl: string;
-    code: string;
-    qrCode: string;
-    value: number;
-    status: string;
-    redeemMethod: string[];
-    expiryDate: Date;
+  voucherId: string;
+  eventId: string;
+  code: string;
+  qrCode: string;
+  imgUrl: string;
+  value: string;
+  description: string;
+  expiryDt: Date;
+  status: string;
+  redeemMethod: string;
+  quantity: number;
+  remainings: number;
 }
 
 export default Voucher;
