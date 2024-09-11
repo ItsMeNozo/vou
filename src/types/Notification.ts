@@ -1,8 +1,8 @@
 export default interface Notification {
-  id: string;
+  _id: string;
   title: string;
   content: string;
   read: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }

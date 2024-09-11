@@ -16,7 +16,7 @@ interface User {
 }
 
 // Access the API Gateway URL from environment variables
-const API_GATEWAY_URL  = import.meta.env.VITE_API_GATEWAY_URL;
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
 if (!API_GATEWAY_URL) {
   throw new Error("API_GATEWAY_URL is not defined in environment variables");
@@ -87,9 +87,7 @@ const EventList: React.FC = () => {
   useEffect(() => {
     const fetchNumberOfEvents = async () => {
       try {
-        let response = await axios.get(
-          `${API_GATEWAY_URL}/sale-events/count`,
-        );
+        let response = await axios.get(`${API_GATEWAY_URL}/sale-events/count`);
         setTotalEvents(response.data.count);
         response = await axios.get(
           `${API_GATEWAY_URL}/sale-events/count?game-type=quiz`,
@@ -138,13 +136,11 @@ const EventList: React.FC = () => {
           const response = await axios.get(
             `${API_GATEWAY_URL}/api/user/${user.uid}`,
           );
-          const userData = response.data;
+          const userData = response.data.data;
           setUserInfo({ username: userData.username, avatar: userData.avatar });
-          const favorites = userData.favorites;
+          const favorites = userData.favorites || [];
           const eventPromises = favorites.map((eventId: string) =>
-            axios.get(
-              `${API_GATEWAY_URL}/sale-events/${eventId}`,
-            ),
+            axios.get(`${API_GATEWAY_URL}/sale-events/${eventId}`),
           );
           const eventResponses = await Promise.all(eventPromises);
           const eventDetails = eventResponses.map((response) => response.data);
@@ -179,7 +175,7 @@ const EventList: React.FC = () => {
       fetchNumberOfEvents();
     }
     fetchQuizGameTimes();
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     const params = new URLSearchParams();

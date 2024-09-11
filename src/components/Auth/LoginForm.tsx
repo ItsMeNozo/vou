@@ -33,7 +33,7 @@ const LoginForm: React.FC = () => {
       });
 
       if (response.data.success) {
-        const { token, role } = response.data.data;
+        const { customToken, role } = response.data.data;
 
         if (role !== "player") {
           // If the user is not an admin, show an error message and do not proceed
@@ -42,7 +42,7 @@ const LoginForm: React.FC = () => {
         }
 
         // Use Firebase's signInWithCustomToken to sign the user in
-        await signInWithCustomToken(auth, token);
+        await signInWithCustomToken(auth, customToken);
 
         message.success("Login successful!");
         navigate("/"); // Navigate after successful login

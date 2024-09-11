@@ -33,7 +33,6 @@ const EventDetails: React.FC = () => {
           `${API_GATEWAY_URL}/sale-events/${eventId}`,
         );
         setEvent(response.data);
-        console.log("Event", response.data);
       } catch (err) {
         console.log("Failed to fetch events");
       }
@@ -45,8 +44,8 @@ const EventDetails: React.FC = () => {
           const response = await axios.get(
             `${API_GATEWAY_URL}/api/user/${user.uid}`,
           );
-          const userData = response.data;
-          const favorites = userData.favorites;
+          const userData = response.data.data;
+          const favorites = userData.favorites || [];
           if (favorites.includes(eventId)) {
             setIsFavorite(true);
           }
@@ -66,19 +65,21 @@ const EventDetails: React.FC = () => {
         const response = await axios.get(
           `${API_GATEWAY_URL}/api/user/${user.uid}`,
         );
-        const userData = response.data;
-        const favorites = userData.favorites;
-        const updatedUser = { ...userData };
+        const userData = response.data.data;
+        const favorites = userData.favorites || [];
+        let updatedFavorites = [...favorites];
         if (isFavorite) {
-          updatedUser.favorites = favorites.filter(
+          updatedFavorites = favorites.filter(
             (favId: string) => favId !== eventId,
           );
           setIsFavorite(false);
         } else {
-          updatedUser.favorites.push(eventId);
+          updatedFavorites.push(eventId);
           setIsFavorite(true);
         }
-        await axios.put(`${API_GATEWAY_URL}/api/user/${user.uid}`, updatedUser);
+        await axios.put(`${API_GATEWAY_URL}/api/user/${user.uid}`, {
+          favorites: updatedFavorites,
+        });
       } catch (err) {
         console.log("Failed to update favorite status");
       }
@@ -137,11 +138,16 @@ const EventDetails: React.FC = () => {
             </div>
             <div className="flex gap-2">
               <Link
-                to={`/quiz-game/main/${event.eventId}`}
+                to={
+                  event.gameType === "shaking"
+                    ? `/shaking-game/main/`
+                    : `/quiz-game/main/${event.eventId}`
+                }
                 className="flex-1 bg-[#7d4af9] text-white p-3 font-semibold text-xl text-center rounded-md"
               >
                 Play
               </Link>
+
               <button
                 onClick={() => handleFavorite()}
                 className="flex-1 border-slate-700 text-slate-700 border-2 p-3 font-semibold text-xl text-center rounded-md"
