@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Progress } from "@/components/ui/progress";
 import axios from "axios";
+import { auth } from "@/config/firebaseConfig";
+
+import { Progress } from "@/components/ui/progress";
 import Event from "@/models/event";
 import "./EventDetails.css";
 import { useNavigate } from "react-router-dom";
 
-const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT || 8888;
-const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT || 8889;
 // Access the API Gateway URL from environment variables
 const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
@@ -22,6 +22,7 @@ function capitalizeFirstLetter(str: string) {
 const EventDetails: React.FC = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
+  const user = auth.currentUser;
   const [event, setEvent] = useState<Event>();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -32,25 +33,25 @@ const EventDetails: React.FC = () => {
           `${API_GATEWAY_URL}/sale-events/${eventId}`,
         );
         setEvent(response.data);
-        console.log("Event", response.data);
       } catch (err) {
         console.log("Failed to fetch events");
       }
     };
 
     const fetchUser = async () => {
-      const userId = "123";
-      try {
-        const response = await axios.get(
-          `${API_GATEWAY_URL}/api/user/${userId}`,
-        );
-        const user = response.data;
-        const favorites = user.favorites;
-        if (favorites.includes(eventId)) {
-          setIsFavorite(true);
+      if (user) {
+        try {
+          const response = await axios.get(
+            `${API_GATEWAY_URL}/api/user/${user.uid}`,
+          );
+          const userData = response.data.data;
+          const favorites = userData.favorites || [];
+          if (favorites.includes(eventId)) {
+            setIsFavorite(true);
+          }
+        } catch (err) {
+          console.log("Failed to check favorite status");
         }
-      } catch (err) {
-        console.log("Failed to check favorite status");
       }
     };
 
@@ -59,24 +60,29 @@ const EventDetails: React.FC = () => {
   }, []);
 
   const handleFavorite = async () => {
-    const userId = "123";
-    try {
-      const response = await axios.get(`${API_GATEWAY_URL}/api/user/${userId}`);
-      const user = response.data;
-      const favorites = user.favorites;
-      const updatedUser = { ...user };
-      if (isFavorite) {
-        updatedUser.favorites = favorites.filter(
-          (favId: string) => favId !== eventId,
+    if (user) {
+      try {
+        const response = await axios.get(
+          `${API_GATEWAY_URL}/api/user/${user.uid}`,
         );
-        setIsFavorite(false);
-      } else {
-        updatedUser.favorites.push(eventId);
-        setIsFavorite(true);
+        const userData = response.data.data;
+        const favorites = userData.favorites || [];
+        let updatedFavorites = [...favorites];
+        if (isFavorite) {
+          updatedFavorites = favorites.filter(
+            (favId: string) => favId !== eventId,
+          );
+          setIsFavorite(false);
+        } else {
+          updatedFavorites.push(eventId);
+          setIsFavorite(true);
+        }
+        await axios.put(`${API_GATEWAY_URL}/api/user/${user.uid}`, {
+          favorites: updatedFavorites,
+        });
+      } catch (err) {
+        console.log("Failed to update favorite status");
       }
-      await axios.put(`${API_GATEWAY_URL}/api/user/${userId}`, updatedUser);
-    } catch (err) {
-      console.log("Failed to update favorite status");
     }
   };
 
@@ -132,11 +138,16 @@ const EventDetails: React.FC = () => {
             </div>
             <div className="flex gap-2">
               <Link
-                to={`/quiz-game/main/${event.eventId}`}
+                to={
+                  event.gameType === "shaking"
+                    ? `/shaking-game/main/`
+                    : `/quiz-game/main/${event.eventId}`
+                }
                 className="flex-1 bg-[#7d4af9] text-white p-3 font-semibold text-xl text-center rounded-md"
               >
                 Play
               </Link>
+
               <button
                 onClick={() => handleFavorite()}
                 className="flex-1 border-slate-700 text-slate-700 border-2 p-3 font-semibold text-xl text-center rounded-md"

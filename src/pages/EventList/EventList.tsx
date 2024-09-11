@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { auth } from "@/config/firebaseConfig";
 
 import Event from "@/models/event";
 import logo from "@/assets/logo.png";
@@ -9,6 +10,11 @@ import { Input } from "@/components/ui/input";
 
 import "./EventList.css";
 
+interface User {
+  username: string;
+  avatar: string;
+}
+
 // Access the API Gateway URL from environment variables
 const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
@@ -16,19 +22,11 @@ if (!API_GATEWAY_URL) {
   throw new Error("API_GATEWAY_URL is not defined in environment variables");
 }
 
-const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT || 8888;
-const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT || 8889;
-
-function capitalizeFirstLetter(str: string) {
-  return str?.charAt(0).toUpperCase() + str?.slice(1);
-}
-
-const username = "John Doe";
-const avatar = "";
-
 const EventList: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = auth.currentUser;
+  const [userInfo, setUserInfo] = useState<User>();
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedGame, setSelectedGame] = useState("All");
   const [selectedTimeFrames, setSelectedTimeFrames] = useState<{
@@ -92,11 +90,11 @@ const EventList: React.FC = () => {
         let response = await axios.get(`${API_GATEWAY_URL}/sale-events/count`);
         setTotalEvents(response.data.count);
         response = await axios.get(
-          `${API_GATEWAY_URL}/sale-events/count?game=quiz`,
+          `${API_GATEWAY_URL}/sale-events/count?game-type=quiz`,
         );
         setTotalQuizGames(response.data.count);
         response = await axios.get(
-          `${API_GATEWAY_URL}/sale-events/count?game=shaking`,
+          `${API_GATEWAY_URL}/sale-events/count?game-type=shaking`,
         );
         setTotalShakingGames(response.data.count);
       } catch (err) {
@@ -133,38 +131,40 @@ const EventList: React.FC = () => {
     };
 
     const fetchFavoriteEvents = async () => {
-      const userId = "123";
-      try {
-        const response = await axios.get(
-          `${API_GATEWAY_URL}/api/user/${userId}`,
-        );
-        const user = response.data;
-        const favorites = user.favorites;
-        const eventPromises = favorites.map((eventId: string) =>
-          axios.get(`${API_GATEWAY_URL}/sale-events/${eventId}`),
-        );
-        const eventResponses = await Promise.all(eventPromises);
-        const eventDetails = eventResponses.map((response) => response.data);
+      if (user) {
+        try {
+          const response = await axios.get(
+            `${API_GATEWAY_URL}/api/user/${user.uid}`,
+          );
+          const userData = response.data.data;
+          setUserInfo({ username: userData.username, avatar: userData.avatar });
+          const favorites = userData.favorites || [];
+          const eventPromises = favorites.map((eventId: string) =>
+            axios.get(`${API_GATEWAY_URL}/sale-events/${eventId}`),
+          );
+          const eventResponses = await Promise.all(eventPromises);
+          const eventDetails = eventResponses.map((response) => response.data);
 
-        const eventCounts = eventDetails.reduce(
-          (counts, event) => {
-            counts.total += 1;
-            if (event.gameType === "quiz") {
-              counts.quiz += 1;
-            } else if (event.gameType === "shaking") {
-              counts.shaking += 1;
-            }
-            return counts;
-          },
-          { total: 0, quiz: 0, shaking: 0 },
-        );
+          const eventCounts = eventDetails.reduce(
+            (counts, event) => {
+              counts.total += 1;
+              if (event.gameType === "quiz") {
+                counts.quiz += 1;
+              } else if (event.gameType === "shaking") {
+                counts.shaking += 1;
+              }
+              return counts;
+            },
+            { total: 0, quiz: 0, shaking: 0 },
+          );
 
-        setTotalEvents(eventCounts.total);
-        setTotalQuizGames(eventCounts.quiz);
-        setTotalShakingGames(eventCounts.shaking);
-        setEvents(eventDetails);
-      } catch (err) {
-        console.log("Failed to fetch favorite events");
+          setTotalEvents(eventCounts.total);
+          setTotalQuizGames(eventCounts.quiz);
+          setTotalShakingGames(eventCounts.shaking);
+          setEvents(eventDetails);
+        } catch (err) {
+          console.log("Failed to fetch favorite events");
+        }
       }
     };
 
@@ -175,7 +175,7 @@ const EventList: React.FC = () => {
       fetchNumberOfEvents();
     }
     fetchQuizGameTimes();
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -188,7 +188,7 @@ const EventList: React.FC = () => {
     ) {
       if (selectedGame !== "All") {
         const game = selectedGame === "Shaking game" ? "shaking" : "quiz";
-        params.append("game", game);
+        params.append("game-type", game);
       }
       if (
         selectedTimeFrames[selectedGame] == "happening" ||
@@ -239,9 +239,9 @@ const EventList: React.FC = () => {
             <img src={logo} alt="Logo" className="h-12" />
           </div>
           <div className="flex items-center" onClick={handleAvatarClick}>
-            <span className="mr-2">{username}</span>
+            <span className="mr-2">{userInfo?.username}</span>
             <img
-              src={avatar ? avatar : defaultAvatar}
+              src={userInfo?.avatar ? userInfo?.avatar : defaultAvatar}
               alt="User Avatar"
               className="h-10 w-10 rounded-full"
             />
@@ -367,18 +367,18 @@ const EventList: React.FC = () => {
                           event.status == "upcoming"
                             ? "bg-yellow-400"
                             : "bg-green-400"
-                        } p-1 rounded-md`}
+                        } p-1 rounded-md capitalize`}
                       >
-                        {capitalizeFirstLetter(event.status)}
+                        {event.status}
                       </div>
                     </div>
                   </div>
                   <div
                     className={`text-white ${
                       event.gameType == "quiz" ? "bg-blue-500" : "bg-orange-400"
-                    } p-1 rounded-md text-sm absolute -top-0.5 -left-0.5`}
+                    } p-1 rounded-md text-sm absolute -top-0.5 -left-0.5 capitalize`}
                   >
-                    {capitalizeFirstLetter(event.gameType)}
+                    {event.gameType}
                   </div>
                 </div>
               </Link>

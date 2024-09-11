@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import defaultAvatar from "@/assets/avatar.png";
 import axios from "axios";
+
+import defaultAvatar from "@/assets/avatar.png";
 
 // Access the API Gateway URL from environment variables
 const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
@@ -24,13 +25,13 @@ interface LeaderboardProps {
   topPlayers: TopPlayer[];
 }
 
-const mockPlayers: Player[] = [
-  { id: "1", avatar: "", name: "Player One", score: 100 },
-  { id: "2", avatar: "", name: "Player Two", score: 90 },
-  { id: "3", avatar: "", name: "Player Three", score: 80 },
-  { id: "4", avatar: "", name: "Player Four", score: 70 },
-  { id: "5", avatar: "", name: "Player Five", score: 60 },
-];
+// const mockPlayers: Player[] = [
+//   { id: "1", avatar: "", name: "Player One", score: 100 },
+//   { id: "2", avatar: "", name: "Player Two", score: 90 },
+//   { id: "3", avatar: "", name: "Player Three", score: 80 },
+//   { id: "4", avatar: "", name: "Player Four", score: 70 },
+//   { id: "5", avatar: "", name: "Player Five", score: 60 },
+// ];
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -51,8 +52,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
         console.error("Error fetching players:", error);
       }
     };
-    // fetchPlayers();
-    setPlayers(mockPlayers);
+    fetchPlayers();
+    // setPlayers(mockPlayers);
   }, [topPlayers]);
 
   return (
