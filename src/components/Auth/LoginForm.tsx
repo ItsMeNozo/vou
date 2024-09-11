@@ -27,10 +27,13 @@ const LoginForm: React.FC = () => {
 
     try {
       // Send a request to your backend for login and custom token generation
-      const response = await axios.post(`${API_GATEWAY_URL}/api/auth/login`, {
-        email: values.email,
-        password: values.password,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_GATEWAY_URL}/api/auth/login`,
+        {
+          email: values.email,
+          password: values.password,
+        },
+      );
 
       if (response.data.success) {
         const { customToken, role } = response.data.data;
