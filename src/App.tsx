@@ -14,7 +14,7 @@ import AuthLayout from "./layouts/AuthLayout.tsx";
 import LoginPage from "./pages/Login.tsx";
 import VerificationSuccess from "./pages/VerificationSuccess.tsx";
 import PrivateRoute from "./components/PrivateRoute.tsx";
-import RegisterPage from "./pages/SignUp/SignUp.tsx";
+import RegisterPage from "./pages/SignUp/Signup.tsx";
 import VerifyOTPForm from "./components/Auth/VerifyOTPForm.tsx";
 import { Toaster } from "@/components/ui/toaster";
 

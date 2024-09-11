@@ -1,34 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import User from "@/types/User";
 import avatarImg from "@/assets/avatar.png";
 import { useNavigate } from "react-router-dom";
 import { handleSignOut } from "@/utils/authUtils";
+import { auth } from "@/config/firebaseConfig";
+
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User>({
-    profileImgUrl: avatarImg, // Placeholder image URL
-    fullName: "John Doe",
-    password: "",
-    email: "johndoe@example.com",
-    phone: "+1234567890",
-  });
-
+  const [user, setUser] = useState<User>();
   const [isEditing, setIsEditing] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUser((prevUser) => ({
-      ...prevUser,
-      [name]: value,
-    }));
     setIsEditing(true);
+    const { id, value } = e.target;
+    setUser(
+      (prevData) =>
+        ({
+          ...prevData,
+          [id]: value || "",
+        }) as User,
+    );
   };
 
-  const handleSave = () => {
-    console.log("User details saved:", user);
-    setIsEditing(false);
+  const handleSave = async () => {
+    auth.onAuthStateChanged(async (userAuth) => {
+      if (userAuth) {
+        try {
+          await axios.put(`${API_GATEWAY_URL}/api/user/${userAuth.uid}`, user);
+        } catch (error) {
+          console.error("Error updating user :", error);
+        }
+        setIsEditing(false);
+      }
+    });
   };
+
+  useEffect(() => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const response = await axios.get(
+            `${API_GATEWAY_URL}/api/user/${user?.uid}`,
+          );
+          setUser(response.data.data);
+        } catch (err) {
+          console.log("Failed to fetch user details");
+        }
+      }
+    });
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto my-8 p-6 bg-white rounded-lg shadow-lg">
@@ -47,7 +70,7 @@ const Profile: React.FC = () => {
       {/* Profile Image */}
       <div className="flex justify-center mb-6">
         <img
-          src={user.profileImgUrl}
+          src={user?.avatar ? user.avatar : avatarImg}
           alt="Profile"
           className="w-24 h-24 rounded-full object-cover"
         />
@@ -56,12 +79,12 @@ const Profile: React.FC = () => {
       {/* Profile Form */}
       <div className="space-y-4">
         <div>
-          <label className="block text-left text-gray-700">Full Name</label>
+          <label className="block text-left text-gray-700">Username</label>
           <input
             type="text"
-            name="fullName"
-            value={user.fullName}
-            onChange={handleChange}
+            id="username"
+            value={user?.username}
+            disabled={true}
             className="w-full p-2 mt-1 border rounded"
           />
         </div>
@@ -69,8 +92,18 @@ const Profile: React.FC = () => {
           <label className="block text-left text-gray-700">Email</label>
           <input
             type="email"
-            name="email"
-            value={user.email}
+            id="email"
+            value={user?.email}
+            disabled={true}
+            className="w-full p-2 mt-1 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-left text-gray-700">Full Name</label>
+          <input
+            type="text"
+            id="fullname"
+            value={user?.fullname}
             onChange={handleChange}
             className="w-full p-2 mt-1 border rounded"
           />
@@ -79,8 +112,8 @@ const Profile: React.FC = () => {
           <label className="block text-left text-gray-700">Phone</label>
           <input
             type="tel"
-            name="phone"
-            value={user.phone}
+            id="phoneNumber"
+            value={user?.phoneNumber}
             onChange={handleChange}
             className="w-full p-2 mt-1 border rounded"
           />

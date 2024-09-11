@@ -1,7 +1,11 @@
 export default interface User {
-  profileImgUrl: string;
-  fullName: string;
-  password: string;
+  uid: string;
+  username: string;
   email: string;
-  phone: string;
+  role: string;
+  fullname?: string;
+  phoneNumber?: string;
+  avatar?: string;
+  status?: string;
+  verified?: boolean;
 }

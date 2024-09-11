@@ -84,6 +84,29 @@ const EventList: React.FC = () => {
   };
 
   useEffect(() => {
+    const fetchUser = () => {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const response = await axios.get(
+              `${API_GATEWAY_URL}/api/user/${user.uid}`,
+            );
+            const userData = response.data.data;
+            setUserInfo({
+              username: userData.username,
+              avatar: userData.avatar,
+            });
+          } catch (err) {
+            console.log("Failed to fetch favorite events");
+          }
+        }
+      });
+    };
+
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
     const fetchNumberOfEvents = async () => {
       try {
         let response = await axios.get(`${API_GATEWAY_URL}/sale-events/count`);
