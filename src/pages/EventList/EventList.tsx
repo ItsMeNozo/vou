@@ -130,42 +130,49 @@ const EventList: React.FC = () => {
       }
     };
 
-    const fetchFavoriteEvents = async () => {
-      if (user) {
-        try {
-          const response = await axios.get(
-            `${API_GATEWAY_URL}/api/user/${user.uid}`,
-          );
-          const userData = response.data.data;
-          setUserInfo({ username: userData.username, avatar: userData.avatar });
-          const favorites = userData.favorites || [];
-          const eventPromises = favorites.map((eventId: string) =>
-            axios.get(`${API_GATEWAY_URL}/sale-events/${eventId}`),
-          );
-          const eventResponses = await Promise.all(eventPromises);
-          const eventDetails = eventResponses.map((response) => response.data);
+    const fetchFavoriteEvents = () => {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const response = await axios.get(
+              `${API_GATEWAY_URL}/api/user/${user.uid}`,
+            );
+            const userData = response.data.data;
+            setUserInfo({
+              username: userData.username,
+              avatar: userData.avatar,
+            });
+            const favorites = userData.favorites || [];
+            const eventPromises = favorites.map((eventId: string) =>
+              axios.get(`${API_GATEWAY_URL}/sale-events/${eventId}`),
+            );
+            const eventResponses = await Promise.all(eventPromises);
+            const eventDetails = eventResponses.map(
+              (response) => response.data,
+            );
 
-          const eventCounts = eventDetails.reduce(
-            (counts, event) => {
-              counts.total += 1;
-              if (event.gameType === "quiz") {
-                counts.quiz += 1;
-              } else if (event.gameType === "shaking") {
-                counts.shaking += 1;
-              }
-              return counts;
-            },
-            { total: 0, quiz: 0, shaking: 0 },
-          );
+            const eventCounts = eventDetails.reduce(
+              (counts, event) => {
+                counts.total += 1;
+                if (event.gameType === "quiz") {
+                  counts.quiz += 1;
+                } else if (event.gameType === "shaking") {
+                  counts.shaking += 1;
+                }
+                return counts;
+              },
+              { total: 0, quiz: 0, shaking: 0 },
+            );
 
-          setTotalEvents(eventCounts.total);
-          setTotalQuizGames(eventCounts.quiz);
-          setTotalShakingGames(eventCounts.shaking);
-          setEvents(eventDetails);
-        } catch (err) {
-          console.log("Failed to fetch favorite events");
+            setTotalEvents(eventCounts.total);
+            setTotalQuizGames(eventCounts.quiz);
+            setTotalShakingGames(eventCounts.shaking);
+            setEvents(eventDetails);
+          } catch (err) {
+            console.log("Failed to fetch favorite events");
+          }
         }
-      }
+      });
     };
 
     if (location.pathname === "/favorites") {
