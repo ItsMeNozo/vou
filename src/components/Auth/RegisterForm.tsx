@@ -27,6 +27,7 @@ const RegisterForm: React.FC = () => {
     firstName: string;
     lastName: string;
     email: string;
+    username: string;
     password: string;
     confirmPassword: string;
     dateOfBirth: {
@@ -41,23 +42,24 @@ const RegisterForm: React.FC = () => {
       console.log(values);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_GATEWAY_URL}/api/user`,
+        `${import.meta.env.VITE_API_GATEWAY_URL}/api/user/player-signup`,
         {
           email: values.email,
           password: values.password,
           userDetails: {
-            firstName: values.firstName,
-            lastName: values.lastName,
-            dateOfBirth: values.dateOfBirth,
+            fullname: values.firstName + " " + values.lastName,
+            dob: `${values.dateOfBirth.day}/${values.dateOfBirth.month}/${values.dateOfBirth.year}`,
             gender: values.gender,
             phoneNumber: values.phoneNumber,
+            username: values.username,
           },
         },
       );
 
       if (response.data.success) {
-        message.success("Sign up successful! Please verify your email.");
-        navigate("/login");
+        localStorage.setItem("email-on-process-verify-otp", values.email);
+        message.success("Sign up successful! Please verify OTP from email.");
+        navigate("/auth/verify-otp");
       } else {
         message.error("Registration failed. Please try again.");
         console.error("Registration failed:", response.data.message);
@@ -67,7 +69,6 @@ const RegisterForm: React.FC = () => {
       message.error("An error occurred during registration.");
     }
   };
-
   return (
     <Form
       name="basic"
@@ -109,6 +110,14 @@ const RegisterForm: React.FC = () => {
       >
         <Input placeholder="Email address" />
       </Form.Item>
+
+      {/* Username */}
+      <Form.Item
+        name="username"
+        rules={[{ required: true, message: "Username is required" }]}
+      >
+        <Input placeholder="Username" />
+      </Form.Item>
       {/* Password */}
       <Form.Item
         name="password"
@@ -147,21 +156,21 @@ const RegisterForm: React.FC = () => {
         >
           <Select placeholder="Month">
             {[
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
+              { Jan: "01" },
+              { Feb: "02" },
+              { Mar: "03" },
+              { Apr: "04" },
+              { May: "05" },
+              { Jun: "06" },
+              { Jul: "07" },
+              { Aug: "08" },
+              { Sep: "09" },
+              { Oct: "10" },
+              { Nov: "11" },
+              { Dec: "12" },
             ].map((month, i) => (
-              <Select.Option key={i} value={month}>
-                {month}
+              <Select.Option key={i} value={Object(month).value}>
+                {Object(month).key}
               </Select.Option>
             ))}
           </Select>

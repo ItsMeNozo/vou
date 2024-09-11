@@ -14,6 +14,7 @@ import LoginPage from "./pages/Login.tsx";
 import VerificationSuccess from "./pages/VerificationSuccess.tsx";
 import PrivateRoute from "./components/PrivateRoute.tsx";
 import RegisterPage from "./pages/SignUp/SignUp.tsx";
+import VerifyOTPForm from "./components/Auth/VerifyOTPForm.tsx";
 
 const Layout = () => {
   return (
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "register",
         element: <RegisterPage />, // Direct register route
+      },
+      {
+        path: "verify-otp",
+        element: <VerifyOTPForm />,
       },
     ],
   },
