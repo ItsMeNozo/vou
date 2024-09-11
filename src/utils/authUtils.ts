@@ -24,7 +24,7 @@ export const handleSignOut = async (navigate: NavigateFunction) => {
     await signOut(auth);
 
     // Navigate to login page after sign-out
-    navigate("/login");
+    navigate("/auth/login");
   } catch (error) {
     console.error("Error during logout:", error);
   }

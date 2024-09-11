@@ -21,7 +21,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({
     return <div>Loading...</div>; // Or a loading spinner
   }
 
-  return authenticated ? <>{children}</> : <Navigate to="/login" />;
+  return authenticated ? <>{children}</> : <Navigate to="/auth/login" />;
 };
 
 export default PrivateRoute;

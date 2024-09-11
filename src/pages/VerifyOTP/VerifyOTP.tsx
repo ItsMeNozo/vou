@@ -1,8 +1,8 @@
-import RegisterForm from "@/components/Auth/RegisterForm";
+import VerifyOTPForm from "@/components/Auth/VerifyOTPForm";
 import React from "react";
 
 const RegisterPage: React.FC = () => {
-  return <RegisterForm />;
+  return <VerifyOTPForm />;
 };
 
 export default RegisterPage;
