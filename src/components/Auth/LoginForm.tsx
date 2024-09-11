@@ -6,7 +6,11 @@ import axios from "axios";
 import { auth } from "@/config/firebaseConfig";
 import { signInWithCustomToken } from "firebase/auth"; // Import Firebase's signInWithCustomToken
 
-const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
+
+if (!API_GATEWAY_URL) {
+  throw new Error("API_GATEWAY_URL is not defined in environment variables");
+}
 
 const { Title } = Typography;
 

@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar.tsx";
 import "./App.css";
 import MainScreen from "./pages/ShakingGame/MainScreen.tsx";
 import EventDetails from "./pages/EventDetails/EventDetails.tsx";
+import QuizGameMain from "./pages/QuizGame/Main/Main.tsx";
 import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
 import NotificationList from "./pages/NotificationList/NotificationList.tsx";
 import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
@@ -103,57 +104,15 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // {
-  //   path: "quiz-game",
-  //   children: [
-  //     {
-  //       path: "",
-  //       element: <QuizGameLanding />,
-  //     },
-  //     {
-  //       path: "landing",
-  //       element: <QuizGameLanding />,
-  //     },
-  //     {
-  //       path: "create",
-  //       element: <QuizGameCreate />,
-  //     },
-  //     {
-  //       path: "quiz-creator",
-  //       element: <QuizGameQuizCreator />,
-  //     },
-  //     {
-  //       path: "host",
-  //       children: [
-  //         {
-  //           path: "",
-  //           element: <QuizGameHost />,
-  //         },
-  //         {
-  //           path: "game",
-  //           element: <QuizGameHostGameView />,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       path: "player",
-  //       children: [
-  //         {
-  //           path: "",
-  //           element: <QuizGameLobby />,
-  //         },
-  //         {
-  //           path: "game",
-  //           element: <QuizGamePlayerGameView />,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       path: "main/:id",
-  //       element: <QuizGameMain />,
-  //     },
-  //   ],
-  // },
+  {
+    path: "quiz-game",
+    children: [
+      {
+        path: "main/:eventId",
+        element: <QuizGameMain />,
+      },
+    ],
+  },
   {
     path: "*",
     element: <div>Page not found</div>,

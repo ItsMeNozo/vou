@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import defaultAvatar from "@/assets/avatar.png";
 import axios from "axios";
+
+import defaultAvatar from "@/assets/avatar.png";
 
 // Access the API Gateway URL from environment variables
 const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
@@ -9,9 +10,9 @@ if (!API_GATEWAY_URL) {
   throw new Error("API_GATEWAY_URL is not defined in environment variables");
 }
 interface Player {
-  id: string;
+  uid: string;
   avatar: string;
-  name: string;
+  username: string;
   score: number;
 }
 
@@ -24,13 +25,13 @@ interface LeaderboardProps {
   topPlayers: TopPlayer[];
 }
 
-const mockPlayers: Player[] = [
-  { id: "1", avatar: "", name: "Player One", score: 100 },
-  { id: "2", avatar: "", name: "Player Two", score: 90 },
-  { id: "3", avatar: "", name: "Player Three", score: 80 },
-  { id: "4", avatar: "", name: "Player Four", score: 70 },
-  { id: "5", avatar: "", name: "Player Five", score: 60 },
-];
+// const mockPlayers: Player[] = [
+//   { id: "1", avatar: "", name: "Player One", score: 100 },
+//   { id: "2", avatar: "", name: "Player Two", score: 90 },
+//   { id: "3", avatar: "", name: "Player Three", score: 80 },
+//   { id: "4", avatar: "", name: "Player Four", score: 70 },
+//   { id: "5", avatar: "", name: "Player Five", score: 60 },
+// ];
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -42,8 +43,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
           const response = await axios.get(
             `${API_GATEWAY_URL}/api/user/${topPlayer.id}`,
           );
-          const { id, avatar, name } = response.data;
-          return { id, avatar, name, score: topPlayer.score };
+          const { uid, avatar, username } = response.data.data;
+          return { uid, avatar, username, score: topPlayer.score };
         });
         const playerData = await Promise.all(playerDataPromises);
         setPlayers(playerData);
@@ -51,8 +52,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
         console.error("Error fetching players:", error);
       }
     };
-    // fetchPlayers();
-    setPlayers(mockPlayers);
+    fetchPlayers();
+    // setPlayers(mockPlayers);
   }, [topPlayers]);
 
   return (
@@ -69,7 +70,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
                   alt="User Avatar"
                   className="h-10 w-10 rounded-full"
                 />
-                <div className="">{player.name}</div>
+                <div className="">{player.username}</div>
               </div>
               <div className="">{player.score}</div>
             </div>
