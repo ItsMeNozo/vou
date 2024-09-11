@@ -15,12 +15,14 @@ import AuthLayout from "./layouts/AuthLayout.tsx";
 import LoginPage from "./pages/Login.tsx";
 import VerificationSuccess from "./pages/VerificationSuccess.tsx";
 import PrivateRoute from "./components/PrivateRoute.tsx";
+import { Toaster } from "@/components/ui/toaster";
 
 const Layout = () => {
   return (
     <>
       <Outlet />
       <Navbar />
+      <Toaster />
     </>
   );
 };

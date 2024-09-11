@@ -25,7 +25,6 @@ if (!API_GATEWAY_URL) {
 const EventList: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState<User>();
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedGame, setSelectedGame] = useState("All");
@@ -214,6 +213,11 @@ const EventList: React.FC = () => {
           const [hours, minutes] = quizGameTime.time.split(":");
           const date = new Date();
           date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+
+          if (quizGameTime.label === "Happening" && date > new Date()) {
+            date.setDate(date.getDate() - 1);
+          }
+
           params.append("start-time", date.toISOString());
         }
       }
@@ -371,9 +375,11 @@ const EventList: React.FC = () => {
                       </div>
                       <div
                         className={`${
-                          event.status == "upcoming"
+                          event.status === "upcoming"
                             ? "bg-yellow-400"
-                            : "bg-green-400"
+                            : event.status === "happening"
+                              ? "bg-green-400"
+                              : "bg-red-400"
                         } p-1 rounded-md capitalize`}
                       >
                         {event.status}

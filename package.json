@@ -24,6 +24,7 @@
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",

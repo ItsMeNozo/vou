@@ -4,6 +4,8 @@ import axios from "axios";
 import { auth } from "@/config/firebaseConfig";
 
 import { Progress } from "@/components/ui/progress";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 import Event from "@/models/event";
 import "./EventDetails.css";
 import { useNavigate } from "react-router-dom";
@@ -15,14 +17,10 @@ if (!API_GATEWAY_URL) {
   throw new Error("API_GATEWAY_URL is not defined in environment variables");
 }
 
-function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 const EventDetails: React.FC = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
-  const user = auth.currentUser;
+  const { toast } = useToast();
   const [event, setEvent] = useState<Event>();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -135,22 +133,41 @@ const EventDetails: React.FC = () => {
                 </span>
               </div>
               <div
-                className={`${event.status == "happening" ? "bg-green-400" : "bg-yellow-400"} p-1 rounded-md`}
+                className={`${
+                  event.status === "upcoming"
+                    ? "bg-yellow-400"
+                    : event.status === "happening"
+                      ? "bg-green-400"
+                      : "bg-red-400"
+                } p-1 rounded-md capitalize`}
               >
-                {capitalizeFirstLetter(event.status)}
+                {event.status}
               </div>
             </div>
             <div className="flex gap-2">
-              <Link
-                to={
-                  event.gameType === "shaking"
-                    ? `/shaking-game/main/`
-                    : `/quiz-game/main/${event.eventId}`
-                }
-                className="flex-1 bg-[#7d4af9] text-white p-3 font-semibold text-xl text-center rounded-md"
-              >
-                Play
-              </Link>
+              <div className="flex-1 bg-[#7d4af9] text-white p-3 font-semibold text-xl text-center rounded-md">
+                {event.status === "happening" ? (
+                  <Link
+                    to={
+                      event.gameType === "shaking"
+                        ? `/shaking-game/main/`
+                        : `/quiz-game/main/${event.eventId}`
+                    }
+                  >
+                    Play
+                  </Link>
+                ) : (
+                  <div
+                    onClick={() => {
+                      toast({
+                        description: "Event is not happening!",
+                      });
+                    }}
+                  >
+                    Play
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={() => handleFavorite()}

@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { GoArrowUp, GoArrowDown } from 'react-icons/go';
+import React, { useState, useEffect } from "react";
+import { GoArrowUp, GoArrowDown } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { getVouchersOfUser } from "@/api/apiService"; // Import API service
-import './VoucherList.css';
-import { VoucherStatus } from '@/types/Voucher';
+import { auth } from "@/config/firebaseConfig";
+import "./VoucherList.css";
+import { VoucherStatus } from "@/types/Voucher";
+import axios from "axios";
+
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
 const VoucherList: React.FC = () => {
   const navigate = useNavigate();
@@ -12,26 +16,36 @@ const VoucherList: React.FC = () => {
   const [vouchers, setVouchers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const username = "john_doe"; // You can dynamically fetch this from props or other logic
 
   useEffect(() => {
-    const fetchVouchers = async () => {
-      try {
-        const data = await getVouchersOfUser(username); // Fetch vouchers using username
-        setVouchers(data.data); // Adjust according to your API response
-        setLoading(false);
-      } catch (error: any) {
-        setError(error.message);
-        setLoading(false);
-      }
+    const fetchVouchers = () => {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const response = await axios.get(
+              `${API_GATEWAY_URL}/api/user/${user.uid}`,
+            );
+            const username = response.data.data.username;
+            const data = await getVouchersOfUser(username); // Fetch vouchers using username
+            setVouchers(data.data); // Adjust according to your API response
+            setLoading(false);
+          } catch (error: any) {
+            setError(error.message);
+            setLoading(false);
+          }
+        }
+      });
     };
 
     fetchVouchers();
-  }, [username]);
+  }, []);
 
   const handleSelectVoucher = (voucher: any) => {
     navigate(`/voucher-details`, {
-      state: { voucherDetails: voucher.voucher, saleEvent: voucher.voucher.saleEvent },
+      state: {
+        voucherDetails: voucher.voucher,
+        saleEvent: voucher.voucher.saleEvent,
+      },
     });
   };
 
@@ -72,7 +86,9 @@ const VoucherList: React.FC = () => {
     const sortedVouchers = [...vouchers].sort((a, b) => {
       const nameA = a.voucher.saleEvent.eventName.toUpperCase();
       const nameB = b.voucher.saleEvent.eventName.toUpperCase();
-      return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+      return sortOrder === "asc"
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
     });
     setVouchers(sortedVouchers);
   };
@@ -162,16 +178,22 @@ const VoucherList: React.FC = () => {
                       {voucher.voucher.saleEvent.eventName}
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(voucher.status)}`}>
-                    {voucher.status.toUpperCase()} {/* Capitalizes the first letter */}
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(voucher.status)}`}
+                  >
+                    {voucher.status.toUpperCase()}{" "}
+                    {/* Capitalizes the first letter */}
                   </span>
                   <div className="text-[#7d4af9] text-sm">
                     Expired:{" "}
-                    {new Date(voucher.voucher.expiryDt).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
+                    {new Date(voucher.voucher.expiryDt).toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      },
+                    )}
                   </div>
                 </div>
               </div>

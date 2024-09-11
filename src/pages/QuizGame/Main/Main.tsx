@@ -22,7 +22,6 @@ import { useSocket } from "@/contexts/SocketContext";
 
 import Leaderboard from "./Leaderboard";
 import Stats from "./Stats";
-import { updateTopPlayersVoucher } from "./postGameHandler";
 import "./Main.css";
 
 function getPlaceSuffix(place: number) {
@@ -82,11 +81,6 @@ const QuizGameMain: React.FC = () => {
   if (!eventId) {
     throw new Error("Event ID is not defined");
   }
-
-  updateTopPlayersVoucher(
-    [{ id: "SQTWnKE9UQhh7H9nVWe9i3W25R12" }],
-    "28044e12-8bb4-41dd-b089-5997e2f15b6b",
-  );
 
   useEffect(() => {
     const fetchUserData = () => {
@@ -198,19 +192,11 @@ const QuizGameMain: React.FC = () => {
         document.body.style.backgroundColor = "white";
       });
 
-      socket.on(
-        "gameOver",
-        (data: { topPlayers: { id: string; score: number }[] }) => {
-          document.body.style.backgroundColor = "#FFFFFF";
-          setButtonVisibility(false);
-          setQuestionOver(false);
-          setMessage("GAME OVER");
-          updateTopPlayersVoucher(
-            data.topPlayers.map((player) => ({ id: player.id })),
-            eventId,
-          );
-        },
-      );
+      socket.on("gameOver", () => {
+        document.body.style.backgroundColor = "#FFFFFF";
+        setQuestionOver(false);
+        setMessage("GAME OVER");
+      });
 
       socket.on("noGameFound", () => {
         window.location.href = "/quiz-game";
