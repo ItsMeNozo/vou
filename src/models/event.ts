@@ -10,7 +10,7 @@ interface Event {
   startDt: Date;
   endDt: Date;
   status: string;
-  vouchers: Voucher[];
+  vouchers: any[];
 }
 
 export default Event;

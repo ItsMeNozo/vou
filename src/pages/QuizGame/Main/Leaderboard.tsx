@@ -3,8 +3,12 @@ import axios from "axios";
 
 import defaultAvatar from "@/assets/avatar.png";
 
-const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+// Access the API Gateway URL from environment variables
+const API_GATEWAY_URL  = import.meta.env.VITE_API_GATEWAY_URL;
 
+if (!API_GATEWAY_URL) {
+  throw new Error("API_GATEWAY_URL is not defined in environment variables");
+}
 interface Player {
   id: string;
   avatar: string;
@@ -37,7 +41,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
       try {
         const playerDataPromises = topPlayers.map(async (topPlayer) => {
           const response = await axios.get(
-            `http://localhost:${AUTH_USER_PORT}/api/user/${topPlayer.id}`,
+            `${API_GATEWAY_URL}/api/user/${topPlayer.id}`,
           );
           const { id, avatar, name } = response.data;
           return { id, avatar, name, score: topPlayer.score };

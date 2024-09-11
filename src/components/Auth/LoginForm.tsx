@@ -6,7 +6,11 @@ import axios from "axios";
 import { auth } from "@/config/firebaseConfig";
 import { signInWithCustomToken } from "firebase/auth"; // Import Firebase's signInWithCustomToken
 
-const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
+
+if (!API_GATEWAY_URL) {
+  throw new Error("API_GATEWAY_URL is not defined in environment variables");
+}
 
 const { Title } = Typography;
 
@@ -23,16 +27,13 @@ const LoginForm: React.FC = () => {
 
     try {
       // Send a request to your backend for login and custom token generation
-      const response = await axios.post(
-        `http://localhost:${AUTH_USER_PORT}/api/auth/login`,
-        {
-          email: values.email,
-          password: values.password,
-        },
-      );
+      const response = await axios.post(`${API_GATEWAY_URL}/api/auth/login`, {
+        email: values.email,
+        password: values.password,
+      });
 
       if (response.data.success) {
-        const { customToken, role } = response.data.data;
+        const { token, role } = response.data.data;
 
         if (role !== "player") {
           // If the user is not an admin, show an error message and do not proceed
@@ -41,7 +42,7 @@ const LoginForm: React.FC = () => {
         }
 
         // Use Firebase's signInWithCustomToken to sign the user in
-        await signInWithCustomToken(auth, customToken);
+        await signInWithCustomToken(auth, token);
 
         message.success("Login successful!");
         navigate("/"); // Navigate after successful login

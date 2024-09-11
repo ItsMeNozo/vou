@@ -65,7 +65,7 @@ const router = createBrowserRouter([
         element: <VoucherList />,
       },
       {
-        path: "/event/:eventId",
+        path: "/sale-events/:eventId",
         element: <EventDetails />,
       },
       {

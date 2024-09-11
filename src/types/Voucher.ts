@@ -1,6 +1,9 @@
 export enum VoucherStatus {
-  Expired = 'Expired',
-  Ongoing = 'Ongoing'
+  ACTIVE = "active",
+  EXPIRED = "expired",
+  REDEEMED = "redeemed",
+  PENDING = "pending",
+  CANCELLED = "cancelled"
 }
 
 export enum RedeemMethod {

@@ -41,7 +41,11 @@ interface User {
   avatar: string;
 }
 
-const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL;
+
+if (!API_GATEWAY_URL) {
+  throw new Error("API_GATEWAY_URL is not defined in environment variables");
+}
 
 const QuizGameMain: React.FC = () => {
   const { eventId } = useParams();
@@ -80,7 +84,7 @@ const QuizGameMain: React.FC = () => {
       if (user) {
         try {
           const response = await axios.get(
-            `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+            `${API_GATEWAY_URL}/api/user/${user.uid}`,
           );
           const userData = response.data;
           setUserInfo({ username: userData.username, avatar: userData.avatar });

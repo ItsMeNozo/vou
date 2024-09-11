@@ -15,8 +15,12 @@ interface User {
   avatar: string;
 }
 
-const AUTH_USER_PORT = import.meta.env.VITE_AUTH_USER_PORT;
-const EVENT_VOUCHER_PORT = import.meta.env.VITE_EVENT_VOUCHER_PORT;
+// Access the API Gateway URL from environment variables
+const API_GATEWAY_URL  = import.meta.env.VITE_API_GATEWAY_URL;
+
+if (!API_GATEWAY_URL) {
+  throw new Error("API_GATEWAY_URL is not defined in environment variables");
+}
 
 const EventList: React.FC = () => {
   const navigate = useNavigate();
@@ -63,7 +67,7 @@ const EventList: React.FC = () => {
   const handleSearch = async (query: string) => {
     try {
       const response = await axios.get(
-        `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/search?input=${query}`,
+        `${API_GATEWAY_URL}/sale-events/search?input=${query}`,
       );
       setEvents(response.data);
     } catch (err) {
@@ -84,15 +88,15 @@ const EventList: React.FC = () => {
     const fetchNumberOfEvents = async () => {
       try {
         let response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/count`,
+          `${API_GATEWAY_URL}/sale-events/count`,
         );
         setTotalEvents(response.data.count);
         response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/count?game-type=quiz`,
+          `${API_GATEWAY_URL}/sale-events/count?game-type=quiz`,
         );
         setTotalQuizGames(response.data.count);
         response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/count?game-type=shaking`,
+          `${API_GATEWAY_URL}/sale-events/count?game-type=shaking`,
         );
         setTotalShakingGames(response.data.count);
       } catch (err) {
@@ -103,7 +107,7 @@ const EventList: React.FC = () => {
     const fetchQuizGameTimes = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/event-times-today`,
+          `${API_GATEWAY_URL}/sale-events/event-times-today`,
         );
         const now = new Date();
 
@@ -132,14 +136,14 @@ const EventList: React.FC = () => {
       if (user) {
         try {
           const response = await axios.get(
-            `http://localhost:${AUTH_USER_PORT}/api/user/${user.uid}`,
+            `${API_GATEWAY_URL}/api/user/${user.uid}`,
           );
           const userData = response.data;
           setUserInfo({ username: userData.username, avatar: userData.avatar });
           const favorites = userData.favorites;
           const eventPromises = favorites.map((eventId: string) =>
             axios.get(
-              `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/${eventId}`,
+              `${API_GATEWAY_URL}/sale-events/${eventId}`,
             ),
           );
           const eventResponses = await Promise.all(eventPromises);
@@ -171,7 +175,7 @@ const EventList: React.FC = () => {
     if (location.pathname === "/favorites") {
       fetchFavoriteEvents();
     } else {
-      fetchEvents(`http://localhost:${EVENT_VOUCHER_PORT}/sale-events/`);
+      fetchEvents(`${API_GATEWAY_URL}/sale-events/`);
       fetchNumberOfEvents();
     }
     fetchQuizGameTimes();
@@ -179,7 +183,7 @@ const EventList: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    let url = `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/`;
+    let url = `${API_GATEWAY_URL}/sale-events/`;
 
     if (
       selectedGame !== "All" ||
@@ -211,7 +215,7 @@ const EventList: React.FC = () => {
         }
       }
 
-      url = `http://localhost:${EVENT_VOUCHER_PORT}/sale-events/filter?${params.toString()}`;
+      url = `${API_GATEWAY_URL}/sale-events/filter?${params.toString()}`;
     }
     if (location.pathname === "/favorites") {
       setEvents(
@@ -329,7 +333,7 @@ const EventList: React.FC = () => {
         <div>
           {events &&
             events.map((event, index) => (
-              <Link to={`/event/${event.eventId}`} key={index}>
+              <Link to={`/sale-events/${event.eventId}`} key={index}>
                 <div className="flex m-2 p-2 border-b border-slate-300 relative">
                   <div className="w-1/3">
                     <div className="aspect-w-1 aspect-h-1">
