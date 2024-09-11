@@ -24,7 +24,7 @@ const LoginForm: React.FC = () => {
     try {
       // Send a request to your backend for login and custom token generation
       const response = await axios.post(
-        `http://localhost:${AUTH_USER_PORT}/api/auth/login`,
+        `${import.meta.env.VITE_API_GATEWAY_URL}/api/auth/login`,
         {
           email: values.email,
           password: values.password,

@@ -11,7 +11,7 @@ const VerificationSuccess = () => {
         <p className="text-lg text-gray-700 mb-6">
           Your email has been verified. You can now proceed to use your account.
         </p>
-        <Link to="/login">
+        <Link to="/auth/login">
           <Button variant="default" className="px-6 py-3">
             Go to Login
           </Button>

@@ -9,11 +9,11 @@ import VoucherDetails from "./components/VoucherDetails/VoucherDetails.tsx";
 import NotificationList from "./pages/NotificationList/NotificationList.tsx";
 import NotificationDetails from "./pages/NotificationDetails/NotificationDetails.tsx";
 import Profile from "./pages/Profile/Profile.tsx";
-import Signup from "./pages/Signup/Signup.tsx";
 import AuthLayout from "./layouts/AuthLayout.tsx";
 import LoginPage from "./pages/Login.tsx";
 import VerificationSuccess from "./pages/VerificationSuccess.tsx";
 import PrivateRoute from "./components/PrivateRoute.tsx";
+import RegisterPage from "./pages/SignUp/SignUp.tsx";
 
 const Layout = () => {
   return (
@@ -30,12 +30,16 @@ const router = createBrowserRouter([
     element: <VerificationSuccess />,
   },
   {
-    path: "/login",
-    element: <AuthLayout />,
+    path: "/auth",
+    element: <AuthLayout />, // Common layout for both login and register
     children: [
       {
-        path: "",
-        element: <LoginPage />,
+        path: "login",
+        element: <LoginPage />, // Direct login route
+      },
+      {
+        path: "register",
+        element: <RegisterPage />, // Direct register route
       },
     ],
   },
@@ -82,10 +86,6 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />,
-      },
-      {
-        path: "/signup",
-        element: <Signup />,
       },
     ],
   },
