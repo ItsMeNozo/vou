@@ -10,9 +10,9 @@ if (!API_GATEWAY_URL) {
   throw new Error("API_GATEWAY_URL is not defined in environment variables");
 }
 interface Player {
-  id: string;
+  uid: string;
   avatar: string;
-  name: string;
+  username: string;
   score: number;
 }
 
@@ -43,8 +43,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
           const response = await axios.get(
             `${API_GATEWAY_URL}/api/user/${topPlayer.id}`,
           );
-          const { id, avatar, name } = response.data;
-          return { id, avatar, name, score: topPlayer.score };
+          const { uid, avatar, username } = response.data.data;
+          return { uid, avatar, username, score: topPlayer.score };
         });
         const playerData = await Promise.all(playerDataPromises);
         setPlayers(playerData);
@@ -70,7 +70,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ topPlayers }) => {
                   alt="User Avatar"
                   className="h-10 w-10 rounded-full"
                 />
-                <div className="">{player.name}</div>
+                <div className="">{player.username}</div>
               </div>
               <div className="">{player.score}</div>
             </div>

@@ -38,7 +38,31 @@ const EventDetails: React.FC = () => {
       }
     };
 
-    const fetchUser = async () => {
+    const fetchUser = () => {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const response = await axios.get(
+              `${API_GATEWAY_URL}/api/user/${user.uid}`,
+            );
+            const userData = response.data.data;
+            const favorites = userData.favorites || [];
+            if (favorites.includes(eventId)) {
+              setIsFavorite(true);
+            }
+          } catch (err) {
+            console.log("Failed to check favorite status");
+          }
+        }
+      });
+    };
+
+    fetchEvent();
+    fetchUser();
+  }, []);
+
+  const handleFavorite = () => {
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
         try {
           const response = await axios.get(
@@ -46,44 +70,24 @@ const EventDetails: React.FC = () => {
           );
           const userData = response.data.data;
           const favorites = userData.favorites || [];
-          if (favorites.includes(eventId)) {
+          let updatedFavorites = [...favorites];
+          if (isFavorite) {
+            updatedFavorites = favorites.filter(
+              (favId: string) => favId !== eventId,
+            );
+            setIsFavorite(false);
+          } else {
+            updatedFavorites.push(eventId);
             setIsFavorite(true);
           }
+          await axios.put(`${API_GATEWAY_URL}/api/user/${user.uid}`, {
+            favorites: updatedFavorites,
+          });
         } catch (err) {
-          console.log("Failed to check favorite status");
+          console.log("Failed to update favorite status");
         }
       }
-    };
-
-    fetchEvent();
-    fetchUser();
-  }, []);
-
-  const handleFavorite = async () => {
-    if (user) {
-      try {
-        const response = await axios.get(
-          `${API_GATEWAY_URL}/api/user/${user.uid}`,
-        );
-        const userData = response.data.data;
-        const favorites = userData.favorites || [];
-        let updatedFavorites = [...favorites];
-        if (isFavorite) {
-          updatedFavorites = favorites.filter(
-            (favId: string) => favId !== eventId,
-          );
-          setIsFavorite(false);
-        } else {
-          updatedFavorites.push(eventId);
-          setIsFavorite(true);
-        }
-        await axios.put(`${API_GATEWAY_URL}/api/user/${user.uid}`, {
-          favorites: updatedFavorites,
-        });
-      } catch (err) {
-        console.log("Failed to update favorite status");
-      }
-    }
+    });
   };
 
   const handleSelectVoucher = (voucher: any) => {

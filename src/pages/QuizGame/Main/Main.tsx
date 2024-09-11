@@ -22,6 +22,7 @@ import { useSocket } from "@/contexts/SocketContext";
 
 import Leaderboard from "./Leaderboard";
 import Stats from "./Stats";
+import { updateTopPlayersVoucher } from "./postGameHandler";
 import "./Main.css";
 
 function getPlaceSuffix(place: number) {
@@ -50,7 +51,6 @@ if (!API_GATEWAY_URL) {
 const QuizGameMain: React.FC = () => {
   const { eventId } = useParams();
   const socket = useSocket();
-  const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState<User>();
   const [playerAnswered, setPlayerAnswered] = useState(-1);
   const [correct, setCorrect] = useState(false);
@@ -79,19 +79,33 @@ const QuizGameMain: React.FC = () => {
     { answerA: 0, answerB: 0, answerC: 0, answerD: 0 },
   ]);
 
+  if (!eventId) {
+    throw new Error("Event ID is not defined");
+  }
+
+  updateTopPlayersVoucher(
+    [{ id: "SQTWnKE9UQhh7H9nVWe9i3W25R12" }],
+    "28044e12-8bb4-41dd-b089-5997e2f15b6b",
+  );
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (user) {
-        try {
-          const response = await axios.get(
-            `${API_GATEWAY_URL}/api/user/${user.uid}`,
-          );
-          const userData = response.data;
-          setUserInfo({ username: userData.username, avatar: userData.avatar });
-        } catch (err) {
-          console.log("Failed to fetch user data");
+    const fetchUserData = () => {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const response = await axios.get(
+              `${API_GATEWAY_URL}/api/user/${user.uid}`,
+            );
+            const userData = response.data.data;
+            setUserInfo({
+              username: userData.username,
+              avatar: userData.avatar,
+            });
+          } catch (err) {
+            console.log("Failed to fetch user data");
+          }
         }
-      }
+      });
     };
 
     fetchUserData();
@@ -102,160 +116,168 @@ const QuizGameMain: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const user = { uid: "1", username: "Player One", avatar: "" };
-    if (!socket || !user) return;
+    auth.onAuthStateChanged((user) => {
+      if (!socket || !user) return;
 
-    socket.emit("player-join-game", {
-      userId: user.uid,
-      eventId,
-    });
+      socket.emit("player-join-game", {
+        userId: user.uid,
+        eventId,
+      });
 
-    socket.on("waitingForNextQuestion", () => {
-      setMessage("Waiting for next the question...");
-      setButtonVisibility(false);
-    });
+      socket.on("waitingForNextQuestion", () => {
+        setMessage("Waiting for next the question...");
+        setButtonVisibility(false);
+      });
 
-    socket.on(
-      "gameQuestions",
-      (data: {
-        question: string;
-        answers: string[];
-        timeLeft: number;
-        playerAnswer: number;
-      }) => {
-        if (data.playerAnswer == -1) {
-          setMessage(data.question);
-          setButtonVisibility(true);
-        }
-        setAnswers(data.answers);
-        setTimeLeft(data.timeLeft);
-        setPlayerAnswered(data.playerAnswer);
-      },
-    );
-
-    socket.on(
-      "questionOver",
-      (data: { topPlayers: { id: string; score: number }[] }) => {
-        setTopPlayers(data.topPlayers);
-        setQuestionOver(true);
-        socket.emit("getScore");
-      },
-    );
-
-    socket.on("answerResult", (data: { correct: boolean }) => {
-      setCorrect(data.correct);
-    });
-
-    socket.on("correctAnswer", (data: { correctAnswer: number }) => {
-      setCorrectAnswer(data.correctAnswer);
-    });
-
-    socket.on("newScore", (data: { score: number; rank: number }) => {
-      setScore(data.score);
-      setRank(data.rank);
-      setQuestionOver(true);
-      localStorage.setItem("score", data.score.toString());
-      localStorage.setItem("rank", data.rank.toString());
-    });
-
-    socket.on("stats", (data: { answersCount: number[] }) => {
-      setChartData([
-        {
-          answerA: data.answersCount[0],
-          answerB: data.answersCount[1],
-          answerC: data.answersCount[2],
-          answerD: data.answersCount[3],
+      socket.on(
+        "gameQuestions",
+        (data: {
+          question: string;
+          answers: string[];
+          timeLeft: number;
+          playerAnswer: number;
+        }) => {
+          if (data.playerAnswer == -1) {
+            setMessage(data.question);
+            setButtonVisibility(true);
+          }
+          setAnswers(data.answers);
+          setTimeLeft(data.timeLeft);
+          setPlayerAnswered(data.playerAnswer);
         },
-      ]);
-    });
+      );
 
-    socket.on("leaderboard", () => {
-      setLeaderboardVisible(true);
-    });
+      socket.on(
+        "questionOver",
+        (data: { topPlayers: { id: string; score: number }[] }) => {
+          setTopPlayers(data.topPlayers);
+          setQuestionOver(true);
+          socket.emit("getScore");
+        },
+      );
 
-    socket.on("nextQuestionPlayer", () => {
-      setCorrect(false);
-      setPlayerAnswered(-1);
-      setQuestionOver(false);
-      setFalseAnswerClass("text-white");
-      setAnswerClass(["hidden", "hidden", "hidden", "hidden"]);
-      setMessage("Waiting for next the question...");
-      setLeaderboardVisible(false);
-      document.body.style.backgroundColor = "white";
-    });
+      socket.on("answerResult", (data: { correct: boolean }) => {
+        setCorrect(data.correct);
+      });
 
-    socket.on("gameOver", () => {
-      document.body.style.backgroundColor = "#FFFFFF";
-      setButtonVisibility(false);
-      setQuestionOver(false);
-      setMessage("GAME OVER");
-    });
+      socket.on("correctAnswer", (data: { correctAnswer: number }) => {
+        setCorrectAnswer(data.correctAnswer);
+      });
 
-    socket.on("noGameFound", () => {
-      window.location.href = "/quiz-game";
-    });
+      socket.on("newScore", (data: { score: number; rank: number }) => {
+        setScore(data.score);
+        setRank(data.rank);
+        setQuestionOver(true);
+        localStorage.setItem("score", data.score.toString());
+        localStorage.setItem("rank", data.rank.toString());
+      });
 
-    socket.on("timeUpdate", (data: { timeLeft: number }) => {
-      setTimeLeft(data.timeLeft);
-    });
+      socket.on("stats", (data: { answersCount: number[] }) => {
+        setChartData([
+          {
+            answerA: data.answersCount[0],
+            answerB: data.answersCount[1],
+            answerC: data.answersCount[2],
+            answerD: data.answersCount[3],
+          },
+        ]);
+      });
 
-    socket.on("audio", (data: { audio: ArrayBuffer }) => {
-      if (audioRef.current) {
-        const blob = new Blob([data.audio], { type: "audio/mp3" });
-        const url = URL.createObjectURL(blob);
-        audioRef.current.src = url;
-        audioRef.current
-          .play()
-          .then(() => {
-            setAudio(true);
-          })
-          .catch((error) => {
-            console.error("Audio Play Error:", error);
+      socket.on("leaderboard", () => {
+        setLeaderboardVisible(true);
+      });
+
+      socket.on("nextQuestionPlayer", () => {
+        setCorrect(false);
+        setPlayerAnswered(-1);
+        setQuestionOver(false);
+        setFalseAnswerClass("text-white");
+        setAnswerClass(["hidden", "hidden", "hidden", "hidden"]);
+        setMessage("Waiting for next the question...");
+        setLeaderboardVisible(false);
+        document.body.style.backgroundColor = "white";
+      });
+
+      socket.on(
+        "gameOver",
+        (data: { topPlayers: { id: string; score: number }[] }) => {
+          document.body.style.backgroundColor = "#FFFFFF";
+          setButtonVisibility(false);
+          setQuestionOver(false);
+          setMessage("GAME OVER");
+          updateTopPlayersVoucher(
+            data.topPlayers.map((player) => ({ id: player.id })),
+            eventId,
+          );
+        },
+      );
+
+      socket.on("noGameFound", () => {
+        window.location.href = "/quiz-game";
+      });
+
+      socket.on("timeUpdate", (data: { timeLeft: number }) => {
+        setTimeLeft(data.timeLeft);
+      });
+
+      socket.on("audio", (data: { audio: ArrayBuffer }) => {
+        if (audioRef.current) {
+          const blob = new Blob([data.audio], { type: "audio/mp3" });
+          const url = URL.createObjectURL(blob);
+          audioRef.current.src = url;
+          audioRef.current
+            .play()
+            .then(() => {
+              setAudio(true);
+            })
+            .catch((error) => {
+              console.error("Audio Play Error:", error);
+            });
+
+          audioRef.current.addEventListener("ended", () => {
+            setAudio(false);
           });
+        }
+      });
 
-        audioRef.current.addEventListener("ended", () => {
-          setAudio(false);
-        });
-      }
+      socket.on("audioError", (error: string) => {
+        console.error("Audio Error:", error);
+      });
+
+      socket.on("waitingForGameStart", (data: { timeLeft: number }) => {
+        setMessage(`Game will start in ${data.timeLeft} seconds...`);
+      });
+
+      socket.on("startGame", () => {
+        setMessage("Let's get started!");
+      });
+
+      socket.on("resetLocalStorage", () => {
+        localStorage.removeItem("score");
+        localStorage.removeItem("rank");
+        setScore(0);
+        setRank(0);
+      });
+
+      return () => {
+        socket.off("gameQuestions");
+        socket.off("questionOver");
+        socket.off("answerResult");
+        socket.off("correctAnswer");
+        socket.off("newScore");
+        socket.off("stats");
+        socket.off("leaderboard");
+        socket.off("nextQuestionPlayer");
+        socket.off("GameOver");
+        socket.off("noGameFound");
+        socket.off("timeUpdate");
+        socket.off("audio");
+        socket.off("audioError");
+        socket.off("waitingForGameStart");
+        socket.off("startGame");
+        socket.off("resetLocalStorage");
+      };
     });
-
-    socket.on("audioError", (error: string) => {
-      console.error("Audio Error:", error);
-    });
-
-    socket.on("waitingForGameStart", (data: { timeLeft: number }) => {
-      setMessage(`Game will start in ${data.timeLeft} seconds...`);
-    });
-
-    socket.on("startGame", () => {
-      setMessage("Let's get started!");
-    });
-
-    socket.on("resetLocalStorage", () => {
-      localStorage.removeItem("score");
-      localStorage.removeItem("rank");
-      setScore(0);
-      setRank(0);
-    });
-
-    return () => {
-      socket.off("gameQuestions");
-      socket.off("questionOver");
-      socket.off("answerResult");
-      socket.off("correctAnswer");
-      socket.off("newScore");
-      socket.off("stats");
-      socket.off("leaderboard");
-      socket.off("nextQuestionPlayer");
-      socket.off("GameOver");
-      socket.off("noGameFound");
-      socket.off("timeUpdate");
-      socket.off("audio");
-      socket.off("audioError");
-      socket.off("waitingForGameStart");
-      socket.off("startGame");
-      socket.off("resetLocalStorage");
-    };
   }, [socket]);
 
   useEffect(() => {
