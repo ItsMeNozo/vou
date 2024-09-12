@@ -1,59 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import classes from "./MainScreen.module.css";
-import item1 from "@/assets/game/items/item1.png";
-import item2 from "@/assets/game/items/item2.png";
-import item3 from "@/assets/game/items/item3.png";
+import rabbit from "@/assets/game/items/rabbit.png";
+import cat from "@/assets/game/items/cat.png";
+import panda from "@/assets/game/items/panda.png";
 import shake from "@/assets/game/wshake.png";
 import Box from "@/components/ShakingBox";
 import { QuestionPopover } from "@/components/HelpPopover";
-import { AddFriendPanel } from "@/components/AddFriendPanel";
+
 import NotificationPopup from "@/components/NotifcationPopover";
 import InventoryPopup from "@/components/InventoryPopup";
-import AdditionalPlayAttemptsPopup from "@/components/AdditionalPlayAttemptsPopup"; 
+import AdditionalPlayAttemptsPopup from "@/components/AdditionalPlayAttemptsPopup";
 
-const items = [item1, item2, item3]; // Array of items to choose from
+type ItemType = {
+  name: "rabbit" | "cat" | "panda";
+  image: string;
+};
+
+// Array of items to choose from with names and corresponding images
+const items: ItemType[] = [
+  { name: "rabbit", image: rabbit },
+  { name: "cat", image: cat },
+  { name: "panda", image: panda },
+];
 
 const MainScreen: React.FC = () => {
   const [shakeTrigger, setShakeTrigger] = useState(false);
   const [showGame, setShowGame] = useState(false);
-  const [attempts, setAttempts] = useState(3);
-  const [isShaking, setIsShaking] = useState(false); 
+  const [attempts, setAttempts] = useState(0); // Default 0, will be fetched from backend
+  const [isShaking, setIsShaking] = useState(false);
   const [showDropAnimation, setShowDropAnimation] = useState(false);
-  const [randomItem, setRandomItem] = useState<string | null>(null); // State for random item
+  const [randomItem, setRandomItem] = useState<ItemType | null>(null); // State for random item
   const [showPopup, setShowPopup] = useState(false); // State for showing popup when no attempts
+  const [username, setUsername] = useState(""); // State for username
+
+  // Function to fetch player data (username and plays)
+  const fetchPlayerData = async () => {
+    try {
+      const playerId = "vSYRZLEJQxuE6WZH3CC2"; // Example player ID
+      const response = await axios.get(`http://localhost:3005/api/player/${playerId}`); // Backend API to fetch player data
+
+      // Update state with the fetched data
+      setUsername(response.data.username);
+      setAttempts(response.data.plays);
+    } catch (error) {
+      console.error("Error fetching player data:", error);
+    }
+  };
+
+  // Fetch player data when the component is mounted
+  useEffect(() => {
+    fetchPlayerData();
+  }, []);
 
   const handleShakeEnd = () => {
-    // This function is called after the shake animation ends
     const randomIndex = Math.floor(Math.random() * items.length);
     setRandomItem(items[randomIndex]); // Select a random item
     setShakeTrigger(false); // Reset shake trigger
   };
 
-  const handleStartGame = () => {
-    if (attempts > 0) {
-      setShowGame(true);
-      setAttempts(attempts - 1);
-      setIsShaking(true);
-
-      // Start dropping items after a short delay (simulate shake)
-      setTimeout(() => {
-        setShowDropAnimation(true);
-        setIsShaking(false);
-
-        // Randomly pick an item to show after shaking
-        const randomIndex = Math.floor(Math.random() * items.length);
-        setRandomItem(items[randomIndex]);
-      }, 1500); // Shake duration before dropping items
-
-      // Reset the shake effect after 4 seconds
-      setTimeout(() => {
-        setShowDropAnimation(false);
-      }, 4000); // Duration of drop animation
-    } else {
-      setShowPopup(true); // Show popup when no attempts are left
-    }
-  };
+  
 
   const handleClosePopup = () => {
     setShowPopup(false); // Close the popup when the user dismisses it
@@ -63,28 +70,76 @@ const MainScreen: React.FC = () => {
     setAttempts(attempts + additionalAttempts); // Add the specified number of attempts
     setShowPopup(false); // Close the popup after getting more attempts
   };
+ // Call the API only when randomItem has been updated
+useEffect(() => {
+  if (randomItem) {
+    handleShakeResult(randomItem);  // Call API after the random item is set
+  }
+}, [randomItem]);
+
+const handleStartGame = () => {
+  if (attempts > 0) {
+    setShowGame(true);
+    setAttempts(attempts - 1);
+    setIsShaking(true);
+
+    setTimeout(() => {
+      setShowDropAnimation(true);
+      setIsShaking(false);
+
+      // Select a random item and update the state
+      const randomIndex = Math.floor(Math.random() * items.length);
+      const chosenItem = items[randomIndex]; 
+      setRandomItem(chosenItem);  // Set the chosen item and trigger useEffect
+
+    }, 1500); 
+  } else {
+    setShowPopup(true); 
+  }
+};
+
+  
+  // Hàm gọi API sau khi đã random item
+  const handleShakeResult = (shakenItem: ItemType) => {
+    console.log("Random Item:", shakenItem);
+    const endpoint = "http://localhost:3005/api/shake";
+  
+    const data = {
+      playerId: "vSYRZLEJQxuE6WZH3CC2", // Ví dụ Player ID
+      item: shakenItem.name, // Gửi item được chọn
+    };
+  
+    axios.post(endpoint, data)
+      .then((response) => {
+        console.log("Shake successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error shaking:", error);
+      });
+  };
+  
+  
+  
 
   return (
     <div>
       <nav className={classes.navbar}>
         <Link to={"#info"} className={`${classes.navlink} ${classes.profile}`}>
-          <span className={classes.username}>Ngoc Pham</span>
+          <span className={classes.username}>{username || "Player"}</span>
           <small className={classes.remaining}>{attempts} plays remaining</small>
         </Link>
         <div className={classes.navbar_controls}>
           <NotificationPopup />
-          <AddFriendPanel />
+          
           <InventoryPopup />
           <QuestionPopover />
         </div>
       </nav>
 
-      {/* Show popup when no attempts are left */}
       {showPopup && (
         <AdditionalPlayAttemptsPopup
           onClose={handleClosePopup}
-          onGetMoreAttempts={handleGetMoreAttempts} // Pass function to add more attempts
-        />
+          onGetMoreAttempts={handleGetMoreAttempts} remainingPlays={0}        />
       )}
 
       <div
@@ -113,26 +168,27 @@ const MainScreen: React.FC = () => {
                 </p>
               </div>
 
-              {/* Show random item after shaking */}
-              {randomItem && (
-                <div className={classes.result}>
-                  <h2>Congratulations! You got:</h2>
-                  <img src={randomItem} alt="Random Item" className={classes.random_item} />
-                  <button onClick={handleStartGame} className={classes.start_btn}>
-                    Shake More
-                  </button>
-                </div>
-              )}
+            
+{randomItem && (
+  <div className={classes.result}>
+    <h2>Congratulations! You got:</h2>
+    <img src={randomItem.image} alt={randomItem.name} className={classes.random_item} />
+    <button onClick={handleStartGame} className={classes.start_btn}>
+      Shake More
+    </button>
+  </div>
+)}
             </div>
           ) : (
             <>
               <div className={classes.game_banner}>
-                <img src={item1} alt="Game Icon" width={100} />
-                <img src={item2} alt="Game Icon" width={100} />
-                <img src={item3} alt="Game Icon" width={100} />
+                <img src={rabbit} alt="Rabbit" width={100} />
+                <img src={cat} alt="Cat" width={100} />
+                <img src={panda} alt="Panda" width={100} />
               </div>
               <button
                 onClick={handleStartGame}
+
                 className={classes.start_btn}
                 disabled={attempts === 0} // Disable the button when no attempts left
               >

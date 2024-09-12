@@ -1,29 +1,50 @@
 import React, { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import axios from "axios"; // Import axios for API requests
 import classes from "./AdditionalPlayAttemptsPopup.module.css";
-
-const friends = ["Nhung", "Nguyen", "John", "Doe"]; // Example list of friends
 
 type AdditionalPlayAttemptsPopupProps = {
   onClose: () => void; // Callback to close the popup
-  onGetMoreAttempts: (attempts: number) => void; // Callback to get more attempts, now accepts a number of attempts
+  onGetMoreAttempts: (attempts: number) => void; // Callback to get more attempts
+  remainingPlays: number; // Number of remaining plays
 };
 
 const AdditionalPlayAttemptsPopup: React.FC<AdditionalPlayAttemptsPopupProps> = ({
   onClose,
   onGetMoreAttempts,
+  remainingPlays
 }) => {
-  const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
+  const [friendUsername, setFriendUsername] = useState<string>(""); // Input field for friend's username
 
-  const handleRequestFromFriend = (friend: string) => {
-    setSelectedFriend(friend);
-    alert(`Request sent to ${friend} for additional play attempt.`);
+  // Request more attempts by sharing on Facebook
+  const handleShareOnFacebook = async () => {
+    try {
+      if (remainingPlays > 0) {
+        alert("You still have plays remaining. You can't get more attempts through sharing.");
+        return;
+      }
+
+      const response = await axios.post('http://localhost:3005/api/share-facebook', {
+        playerId: 'vSYRZLEJQxuE6WZH3CC2', // Replace with actual player ID
+      });
+
+      alert("Shared on Facebook. You got additional play attempts.");
+      onGetMoreAttempts(5); // Add the granted play attempts (based on server logic)
+      onClose(); // Close the popup after sharing
+    } catch (error) {
+      console.error("Error sharing on Facebook:", error);
+      alert("There was an error sharing on Facebook.");
+    }
   };
 
-  const handleShareOnFacebook = () => {
-    alert("Shared on Facebook. You got 5 additional play attempts.");
-    onGetMoreAttempts(5); // Add 5 additional play attempts
-    onClose(); // Close the popup after getting more attempts
+  // Handle requesting from a friend
+  const handleRequestFromFriend = () => {
+    if (friendUsername) {
+      alert(`Request sent to ${friendUsername} for additional play attempts.`);
+      setFriendUsername(""); // Clear input after sending the request
+    } else {
+      alert("Please enter a friend's username.");
+    }
   };
 
   return (
@@ -36,18 +57,24 @@ const AdditionalPlayAttemptsPopup: React.FC<AdditionalPlayAttemptsPopupProps> = 
         <p>You have 0 attempts left. Request more attempts:</p>
         <div className={classes.options}>
           <button onClick={handleShareOnFacebook} className={classes.share_button}>
-            Share on Facebook
+            Share on Facebook + 5 attempts
           </button>
-          <div className={classes.friends_list}>
-            {friends.map(friend => (
-              <div key={friend} className={classes.friend_item}>
-                <span>{friend}</span>
-                <button onClick={() => handleRequestFromFriend(friend)}>Request</button>
-              </div>
-            ))}
+          <div className={classes.request_section}>
+            <input
+              type="text"
+              placeholder="Enter friend's username"
+              value={friendUsername}
+              onChange={(e) => setFriendUsername(e.target.value)} // Update state with input
+              className={classes.input_field}
+            />
+            <button onClick={handleRequestFromFriend} className={classes.request_button}>
+              Send Request
+            </button>
           </div>
         </div>
-        <button onClick={onClose} className={classes.close_button}>Close</button>
+        <button onClick={onClose} className={classes.close_button}>
+          Close
+        </button>
       </PopoverContent>
     </Popover>
   );

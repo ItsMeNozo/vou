@@ -1,80 +1,98 @@
 .popup_inner {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: left;
-    width: 300px;
-    border: 1px solid #ccc;
-  }
-  
-  .popup_inner h2 {
-    margin-bottom: 10px;
-    color: #6530b9;
-    font-family: Arial, sans-serif;
-    text-align: center;
-  }
-  
-  .popup_inner ul {
-    list-style: none;
-    padding: 0;
-    text-align: left;
-  }
-  
-  .popup_inner li {
-    margin: 15px 0;
-    font-family: Arial, sans-serif;
-    color: #333;
-    cursor: pointer;
-  }
-  
-  .actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .mix_button {
-    background-color: #28a745;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: Arial, sans-serif;
-  }
-  
-  .gift_button {
-    background-color: #dc3545;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: Arial, sans-serif;
-    transition: background-color 0.3s ease;
-  }
-  
-  .gift_button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
-  .gift_dialog {
-    margin-top: 20px;
-  }
-  
-  .gift_dialog input {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .inventory_icon {
-    width: 24px; /* Ensure the icon size matches the others */
-    height: 24px;
-    cursor: pointer;
-  }
-  
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: left;
+  width: 300px;
+  border: 1px solid #ccc;
+}
+
+.popup_inner h2 {
+  margin-bottom: 10px;
+  color: #6530b9;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.popup_inner ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.popup_inner li {
+  margin: 15px 0;
+  font-family: Arial, sans-serif;
+  color: #333;
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.selected_item {
+  background-color: #bfabdf; /* Purple background when selected */
+  color: white;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mix_button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+}
+
+.gift_button {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+.gift_button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.gift_dialog {
+  margin-top: 20px;
+}
+
+.gift_dialog input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.send_button {
+  background-color: #28a745;  /* Green background for the send button */
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.inventory_icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
